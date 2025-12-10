@@ -1,0 +1,313 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  examApi,
+  type Exam,
+  type CreateExamDto,
+  type UpdateExamDto,
+} from "@/lib/api/examApi";
+import { courseApi, type Course } from "@/lib/api/courseApi";
+
+interface ExamFormProps {
+  mode: "create" | "edit";
+  examId?: string;
+  initialData?: Exam;
+  onSuccess?: () => void;
+}
+
+type QuestionRow = {
+  questionNumber: number;
+  learningOutcomeCode: string;
+};
+
+export function ExamForm({ mode, examId, initialData, onSuccess }: ExamFormProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [courseId, setCourseId] = useState(initialData?.courseId || "");
+  const [examType, setExamType] = useState<"midterm" | "final">(
+    initialData?.examType || "midterm"
+  );
+  const [examCode, setExamCode] = useState(initialData?.examCode || "");
+  const [questionCount, setQuestionCount] = useState<number>(
+    initialData?.questionCount || 0
+  );
+  const [maxScorePerQuestion, setMaxScorePerQuestion] = useState<number>(
+    initialData?.maxScorePerQuestion || 0
+  );
+  const [questions, setQuestions] = useState<QuestionRow[]>(
+    initialData?.questions || []
+  );
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    // questionCount değiştiğinde satırları otomatik üret
+    if (questionCount < 0 || Number.isNaN(questionCount)) return;
+    setQuestions((prev) => {
+      const updated: QuestionRow[] = [];
+      for (let i = 0; i < questionCount; i++) {
+        const existing = prev.find((q) => q.questionNumber === i + 1);
+        updated.push(
+          existing || {
+            questionNumber: i + 1,
+            learningOutcomeCode: "",
+          }
+        );
+      }
+      return updated;
+    });
+  }, [questionCount]);
+
+  const fetchCourses = async () => {
+    try {
+      const data = await courseApi.getAll();
+      setCourses(data);
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
+
+  const selectedCourse = useMemo(
+    () => courses.find((c) => c._id === courseId),
+    [courses, courseId]
+  );
+
+  const learningOutcomeOptions =
+    selectedCourse?.learningOutcomes?.map((lo) => ({
+      code: lo.code,
+      label: `${lo.code} – ${lo.description}`,
+    })) || [];
+
+  const handleQuestionLoChange = (index: number, loCode: string) => {
+    setQuestions((prev) =>
+      prev.map((q, idx) =>
+        idx === index
+          ? {
+              ...q,
+              learningOutcomeCode: loCode,
+            }
+          : q
+      )
+    );
+  };
+
+  const validateForm = () => {
+    if (!courseId) {
+      toast.error("Ders seçimi zorunludur");
+      return false;
+    }
+    if (!examCode.trim()) {
+      toast.error("Sınav kodu zorunludur");
+      return false;
+    }
+    if (!questionCount || questionCount <= 0) {
+      toast.error("Soru sayısı 1 veya daha büyük olmalıdır");
+      return false;
+    }
+    if (!maxScorePerQuestion || maxScorePerQuestion <= 0) {
+      toast.error("Soru başına maksimum puan zorunludur");
+      return false;
+    }
+    for (const q of questions) {
+      if (!q.learningOutcomeCode) {
+        toast.error(`Soru ${q.questionNumber} için ÖÇ seçmelisiniz`);
+        return false;
+      }
+    }
+    if (learningOutcomeOptions.length === 0) {
+      toast.error("Bu ders için tanımlı öğrenme çıktısı yok");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsSubmitting(true);
+    try {
+      const payload: CreateExamDto | UpdateExamDto = {
+        courseId,
+        examType,
+        examCode: examCode.trim(),
+        questionCount: Number(questionCount),
+        maxScorePerQuestion: Number(maxScorePerQuestion),
+        questions: questions.filter((q) => q.learningOutcomeCode.trim() !== ""),
+      };
+
+      if (mode === "create") {
+        await examApi.create(payload as CreateExamDto);
+        toast.success("Sınav başarıyla oluşturuldu");
+        router.push("/exams");
+      } else if (mode === "edit" && examId) {
+        await examApi.update(examId, payload as UpdateExamDto);
+        toast.success("Sınav başarıyla güncellendi");
+      }
+      onSuccess?.();
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Sınav kaydedilemedi";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="courseId">
+            Ders <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            id="courseId"
+            value={courseId}
+            disabled={isSubmitting || mode === "edit"}
+            onChange={(e) => setCourseId(e.target.value)}
+            className="h-12 text-base"
+          >
+            <option value="">Bir ders seçin</option>
+            {courses.map((course) => (
+              <option key={course._id} value={course._id}>
+                {course.code} - {course.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="examType">
+            Sınav Türü <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            id="examType"
+            value={examType}
+            onChange={(e) => setExamType(e.target.value as "midterm" | "final")}
+            disabled={isSubmitting}
+            className="h-12 text-base"
+          >
+            <option value="midterm">Vize</option>
+            <option value="final">Final</option>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="examCode">
+            Sınav Kodu <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="examCode"
+            value={examCode}
+            onChange={(e) => setExamCode(e.target.value)}
+            disabled={isSubmitting}
+            placeholder="Örn: VIZE-2025-1"
+            className="h-12 text-base"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="questionCount">
+            Soru Sayısı <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="questionCount"
+            type="number"
+            min={1}
+            value={questionCount}
+            onChange={(e) => setQuestionCount(Number(e.target.value))}
+            disabled={isSubmitting}
+            className="h-12 text-base"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="maxScorePerQuestion">
+            Soru Başına Max Puan <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="maxScorePerQuestion"
+            type="number"
+            min={1}
+            value={maxScorePerQuestion}
+            onChange={(e) => setMaxScorePerQuestion(Number(e.target.value))}
+            disabled={isSubmitting}
+            className="h-12 text-base"
+          />
+        </div>
+      </div>
+
+      <Card className="border-2 border-gray-200">
+        <CardHeader>
+          <CardTitle>Sorular → ÖÇ Seçimi</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {questionCount === 0 && (
+            <p className="text-muted-foreground">Soru sayısı girildiğinde satırlar oluşacak.</p>
+          )}
+          {questions.map((q, idx) => (
+            <div
+              key={q.questionNumber}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border bg-white"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-600">
+                  Soru {q.questionNumber}
+                </span>
+              </div>
+              <div className="space-y-1">
+                <Label>Öğrenme Çıktısı (ÖÇ)</Label>
+                <Select
+                  value={q.learningOutcomeCode}
+                  onChange={(e) => handleQuestionLoChange(idx, e.target.value)}
+                  disabled={isSubmitting || learningOutcomeOptions.length === 0}
+                  className="h-11"
+                >
+                  <option value="">ÖÇ seçin</option>
+                  {learningOutcomeOptions.map((opt) => (
+                    <option key={opt.code} value={opt.code}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <div className="flex gap-4">
+        <Button type="submit" disabled={isSubmitting} className="h-12 px-6">
+          {isSubmitting
+            ? "Kaydediliyor..."
+            : mode === "create"
+            ? "Sınav Oluştur"
+            : "Sınavı Güncelle"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={isSubmitting}
+          className="h-12 px-6"
+        >
+          İptal
+        </Button>
+      </div>
+    </form>
+  );
+}
+

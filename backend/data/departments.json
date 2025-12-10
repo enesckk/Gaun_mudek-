@@ -1,0 +1,12 @@
+[
+  { "code": "ELEK", "name": "Elektrik" },
+  { "code": "EHAB", "name": "Elektronik Haberleşme Teknolojisi" },
+  { "code": "GIDA", "name": "Gıda İşleme Teknolojisi" },
+  { "code": "MAKINE", "name": "Makine ve Metal Teknolojileri" },
+  { "code": "IKLIM", "name": "İklimlendirme ve Soğutma Teknolojisi" },
+  { "code": "MOBILYA", "name": "Mobilya ve Dekorasyon" },
+  { "code": "HALICILIK", "name": "Halıcılık ve Kilimcilik" },
+  { "code": "ELSAN", "name": "El Sanatları" },
+  { "code": "KIMYA", "name": "Kimya ve Kimyasal İşleme Teknolojisi" }
+]
+

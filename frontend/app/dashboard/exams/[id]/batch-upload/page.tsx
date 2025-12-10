@@ -1,0 +1,207 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { examApi, type BatchStatusItem } from "@/lib/api/examApi";
+import { Loader2, UploadCloud, CheckCircle2, XCircle } from "lucide-react";
+
+export default function BatchUploadPage() {
+  const params = useParams();
+  const router = useRouter();
+  const examId = params.id as string;
+
+  const [files, setFiles] = useState<File[]>([]);
+  const [batchId, setBatchId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [status, setStatus] = useState<{
+    totalFiles: number;
+    processedCount: number;
+    successCount: number;
+    failedCount: number;
+    statuses: BatchStatusItem[];
+  } | null>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (batchId) {
+      interval = setInterval(fetchStatus, 2500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [batchId]);
+
+  const fetchStatus = async () => {
+    if (!batchId) return;
+    try {
+      const data = await examApi.getBatchStatus(examId, batchId);
+      setStatus({
+        totalFiles: data.totalFiles,
+        processedCount: data.processedCount,
+        successCount: data.successCount,
+        failedCount: data.failedCount,
+        statuses: data.statuses || [],
+      });
+      if (data.processedCount >= data.totalFiles) {
+        toast.success("Batch puanlama tamamlandı");
+        // stop polling
+        setTimeout(() => setBatchId(null), 0);
+      }
+    } catch (error: any) {
+      toast.error("Batch durumu okunamadı");
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files || []);
+    setFiles(selected);
+  };
+
+  const handleStart = async () => {
+    if (!files.length) {
+      toast.error("Lütfen PDF dosyaları seçin");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const data = await examApi.startBatchScore(examId, files);
+      setBatchId(data.batchId);
+      setStatus({
+        totalFiles: data.totalFiles,
+        processedCount: 0,
+        successCount: 0,
+        failedCount: 0,
+        statuses: [],
+      });
+      toast.success("Batch puanlama başlatıldı");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Batch başlatılamadı");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const progress = useMemo(() => {
+    if (!status) return 0;
+    if (status.totalFiles === 0) return 0;
+    return Math.round((status.processedCount / status.totalFiles) * 100);
+  }, [status]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Toplu Sınav Yükleme</h1>
+          <p className="text-muted-foreground">
+            10-300 PDF’yi bir kerede yükleyin, AI otomatik puanlasın.
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => router.push(`/dashboard/exams/${examId}/results`)}>
+          Değerlendirme Sonuçlarını Görüntüle
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>PDF Yükle</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <label className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-slate-50">
+            <UploadCloud className="h-8 w-8 text-slate-500 mb-2" />
+            <span className="text-sm text-slate-600">
+              PDF’leri buraya sürükleyin veya seçin (çoklu seçim)
+            </span>
+            <input
+              type="file"
+              accept="application/pdf"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isUploading || Boolean(batchId)}
+            />
+          </label>
+
+          {files.length > 0 && (
+            <div className="border rounded-lg p-3 max-h-64 overflow-auto text-sm">
+              <div className="font-semibold mb-2">Seçilen dosyalar ({files.length}):</div>
+              <ul className="space-y-1">
+                {files.map((f) => (
+                  <li key={f.name} className="flex justify-between">
+                    <span>{f.name}</span>
+                    <span className="text-slate-500">{(f.size / 1024).toFixed(1)} KB</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <Button
+            onClick={handleStart}
+            disabled={isUploading || Boolean(batchId) || files.length === 0}
+            className="h-11 px-6"
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Başlatılıyor...
+              </>
+            ) : (
+              "Toplu Puanlamayı Başlat"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {status && (
+        <Card>
+          <CardHeader>
+            <CardTitle>İlerleme</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span>Toplam: {status.totalFiles}</span>
+              <span>İşlenen: {status.processedCount}</span>
+              <span className="text-emerald-600">Başarılı: {status.successCount}</span>
+              <span className="text-red-600">Başarısız: {status.failedCount}</span>
+            </div>
+            <Progress value={progress} />
+            <div className="overflow-auto max-h-72 border rounded-lg">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="p-2 border">Öğrenci</th>
+                    <th className="p-2 border">Durum</th>
+                    <th className="p-2 border">Not</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {status.statuses.map((s, idx) => (
+                    <tr key={idx} className="text-center">
+                      <td className="border p-2">{s.studentNumber || "-"}</td>
+                      <td className="border p-2">
+                        {s.status === "success" ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-600">
+                            <CheckCircle2 className="h-4 w-4" /> Başarılı
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-red-600">
+                            <XCircle className="h-4 w-4" /> Başarısız
+                          </span>
+                        )}
+                      </td>
+                      <td className="border p-2 text-left">{s.message || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+

@@ -273,10 +273,13 @@ async function extractNumberFromImage(imageBuffer) {
       `   📷 Görüntü boyutu: ${imageMetadata.width}x${imageMetadata.height}px`
     );
 
-    // Görüntü çok küçükse uyarı ver
-    if ((imageMetadata.width || 0) < 50 || (imageMetadata.height || 0) < 50) {
+    // Görüntü çok küçükse uyarı ver ve minimum boyut kontrolü yap
+    if ((imageMetadata.width || 0) < 100 || (imageMetadata.height || 0) < 50) {
       console.warn(
-        `   ⚠️ Görüntü çok küçük! Bu, template koordinatlarının yanlış olabileceğini gösterir.`
+        `   ⚠️ Görüntü çok küçük (${imageMetadata.width}x${imageMetadata.height}px)! Bu, template koordinatlarının yanlış olabileceğini gösterir.`
+      );
+      console.warn(
+        `   💡 Görüntü en az 100x50px olmalı. Şu anki boyut yeterli değil, Gemini doğru okuyamayabilir.`
       );
     }
   }
@@ -289,7 +292,7 @@ async function extractNumberFromImage(imageBuffer) {
       const model = genAI.getGenerativeModel({ model: modelName });
 
       const prompt =
-        "Extract the numeric value inside this box. Only return a single number. If empty, return 0. Do not include any explanation or text, only the number.";
+        "This image shows a score box from an exam paper. Extract ONLY the numeric score value written inside this box. Return just the number (0-100). If the box is empty or you cannot see a number, return 0. Do not include any explanation, text, or additional characters - ONLY the number.";
 
       const result = await model.generateContent([
         prompt,

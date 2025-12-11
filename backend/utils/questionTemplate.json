@@ -9,110 +9,110 @@
       "xPercent": 60.48, 
       "yPercent": 47.04, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 1650,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 2, 
       "xPercent": 60.48, 
       "yPercent": 50.46, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 1770,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 3, 
       "xPercent": 60.48, 
       "yPercent": 53.88, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 1890,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 4, 
       "xPercent": 60.48, 
       "yPercent": 57.30, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2010,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 5, 
       "xPercent": 60.48, 
       "yPercent": 60.72, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2130,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 6, 
       "xPercent": 60.48, 
       "yPercent": 64.14, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2250,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 7, 
       "xPercent": 60.48, 
       "yPercent": 67.56, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2370,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 8, 
       "xPercent": 60.48, 
       "yPercent": 70.98, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2490,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 9, 
       "xPercent": 60.48, 
       "yPercent": 74.40, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2610,
       "w": 350,
-      "h": 120
+      "h": 175
     },
     { 
       "number": 10, 
       "xPercent": 60.48, 
       "yPercent": 77.82, 
       "wPercent": 14.11, 
-      "hPercent": 3.42,
+      "hPercent": 5.0,
       "x": 1500,
       "y": 2730,
       "w": 350,
-      "h": 120
+      "h": 175
     }
   ],
   "studentNumberBoxes": [

@@ -1,133 +1,136 @@
 {
   "templateSize": {
-    "width": 2480,
-    "height": 3508
+    "width": 1654,
+    "height": 2339,
+    "_note": "Koordinatlar orijinal görüntü (1654x2339) için. Yüzde koordinatları kullanıldığı için farklı görüntü boyutlarında otomatik ölçeklenir."
   },
   "questionScoreBoxes": [
     { 
       "number": 1, 
-      "xPercent": 60.48, 
-      "yPercent": 47.04, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 1650,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 67.08, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1569,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 2, 
-      "xPercent": 60.48, 
-      "yPercent": 50.46, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 1770,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 69.09, 
+      "wPercent": 18.14, 
+      "hPercent": 1.62,
+      "x": 835,
+      "y": 1616,
+      "w": 300,
+      "h": 38
     },
     { 
       "number": 3, 
-      "xPercent": 60.48, 
-      "yPercent": 53.88, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 1890,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 71.14, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1664,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 4, 
-      "xPercent": 60.48, 
-      "yPercent": 57.30, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2010,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 73.15, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1711,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 5, 
-      "xPercent": 60.48, 
-      "yPercent": 60.72, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2130,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 75.16, 
+      "wPercent": 18.14, 
+      "hPercent": 1.62,
+      "x": 835,
+      "y": 1758,
+      "w": 300,
+      "h": 38
     },
     { 
       "number": 6, 
-      "xPercent": 60.48, 
-      "yPercent": 64.14, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2250,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 77.21, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1806,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 7, 
-      "xPercent": 60.48, 
-      "yPercent": 67.56, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2370,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 79.22, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1853,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 8, 
-      "xPercent": 60.48, 
-      "yPercent": 70.98, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2490,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 81.23, 
+      "wPercent": 18.14, 
+      "hPercent": 1.62,
+      "x": 835,
+      "y": 1900,
+      "w": 300,
+      "h": 38
     },
     { 
       "number": 9, 
-      "xPercent": 60.48, 
-      "yPercent": 74.40, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2610,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 83.24, 
+      "wPercent": 18.14, 
+      "hPercent": 1.58,
+      "x": 835,
+      "y": 1948,
+      "w": 300,
+      "h": 37
     },
     { 
       "number": 10, 
-      "xPercent": 60.48, 
-      "yPercent": 77.82, 
-      "wPercent": 14.11, 
-      "hPercent": 5.0,
-      "x": 1500,
-      "y": 2730,
-      "w": 350,
-      "h": 175
+      "xPercent": 50.48, 
+      "yPercent": 85.29, 
+      "wPercent": 18.14, 
+      "hPercent": 1.62,
+      "x": 835,
+      "y": 1995,
+      "w": 300,
+      "h": 38
     }
   ],
   "studentNumberBoxes": [
-    { "digit": 1, "xPercent": 36.29, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 900, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 2, "xPercent": 41.94, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1040, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 3, "xPercent": 47.58, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1180, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 4, "xPercent": 53.23, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1320, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 5, "xPercent": 58.87, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1460, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 6, "xPercent": 64.52, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1600, "y": 1150, "w": 140, "h": 140 },
-    { "digit": 7, "xPercent": 70.16, "yPercent": 32.78, "wPercent": 5.65, "hPercent": 3.99, "x": 1740, "y": 1150, "w": 140, "h": 140 }
+    { "digit": 1, "xPercent": 30.75, "yPercent": 53.87, "wPercent": 3.99, "hPercent": 2.91, "x": 509, "y": 1260, "w": 66, "h": 68 },
+    { "digit": 2, "xPercent": 34.98, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 579, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 3, "xPercent": 39.30, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 650, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 4, "xPercent": 43.56, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 721, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 5, "xPercent": 47.88, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 792, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 6, "xPercent": 52.18, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 863, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 7, "xPercent": 56.47, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 934, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 8, "xPercent": 60.76, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 1005, "y": 1260, "w": 67, "h": 68 },
+    { "digit": 9, "xPercent": 65.05, "yPercent": 53.87, "wPercent": 4.05, "hPercent": 2.91, "x": 1076, "y": 1260, "w": 67, "h": 68 }
   ],
   "examIdBoxes": [
     { "digit": 1, "xPercent": 39.52, "yPercent": 38.48, "wPercent": 5.65, "hPercent": 3.99, "x": 980, "y": 1350, "w": 140, "h": 140 },
     { "digit": 2, "xPercent": 45.16, "yPercent": 38.48, "wPercent": 5.65, "hPercent": 3.99, "x": 1120, "y": 1350, "w": 140, "h": 140 }
   ],
-  "_comment": "Koordinatlar hem pixel (2480x3508 için) hem yüzde olarak saklanıyor. Yüzde koordinatları her görüntü boyutunda çalışır. xPercent, yPercent görüntü genişliği/yüksekliğinin yüzdesi. wPercent, hPercent de genişlik/yüksekliğin yüzdesi."
+  "_comment": "Koordinatlar hem pixel (1654x2339 için) hem yüzde olarak saklanıyor. Yüzde koordinatları her görüntü boyutunda çalışır. xPercent, yPercent görüntü genişliği/yüksekliğinin yüzdesi. wPercent, hPercent de genişlik/yüksekliğin yüzdesi."
 }
 

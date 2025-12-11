@@ -130,6 +130,8 @@ const getStudentById = async (req, res) => {
   try {
     const { id } = req.params;
     const Department = (await import("../models/Department.js")).default;
+    const StudentExamResult = (await import("../models/StudentExamResult.js")).default;
+    const Exam = (await import("../models/Exam.js")).default;
 
     const student = await Student.findById(id);
 
@@ -158,9 +160,54 @@ const getStudentById = async (req, res) => {
       }
     }
 
+    // Öğrencinin tüm sınav sonuçlarını getir
+    const examResults = await StudentExamResult.find({ studentNumber: student.studentNumber })
+      .populate({
+        path: "examId",
+        select: "examType examCode questionCount maxScorePerQuestion",
+      })
+      .populate({
+        path: "courseId",
+        select: "name code",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log(`📊 Öğrenci ${student.studentNumber} için ${examResults.length} sınav sonucu bulundu`);
+
+    // Sonuçları formatla
+    const formattedResults = examResults.map((result, index) => {
+      const exam = result.examId;
+      const totalScore = result.totalScore || result.questionScores?.reduce((sum, qs) => sum + (qs.score || 0), 0) || 0;
+      const maxTotalScore = result.maxTotalScore || (exam?.questionCount * exam?.maxScorePerQuestion) || 0;
+      const percentage = maxTotalScore > 0 ? Math.round((totalScore / maxTotalScore) * 100) : 0;
+
+      const formatted = {
+        _id: result._id,
+        examId: result.examId?._id || result.examId || null,
+        examType: exam?.examType || null,
+        examCode: exam?.examCode || `Sınav-${index + 1}`,
+        courseName: result.courseId?.name || "Bilinmeyen Ders",
+        courseCode: result.courseId?.code || null,
+        questionScores: result.questionScores || [],
+        totalScore,
+        maxTotalScore,
+        percentage,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+      };
+
+      console.log(`  ✅ Sonuç ${index + 1}: ${formatted.examCode} (${formatted.examType}) - ${formatted.totalScore}/${formatted.maxTotalScore} (${formatted.percentage}%)`);
+      return formatted;
+    });
+
     return res.status(200).json({
       success: true,
-      data: studentObj,
+      data: {
+        ...studentObj,
+        examResults: formattedResults,
+        examResultsCount: formattedResults.length,
+      },
     });
   } catch (error) {
     return res.status(500).json({

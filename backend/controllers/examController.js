@@ -17,6 +17,7 @@ import sharp from "sharp";
 import {
   extractNumberFromImage,
   extractStudentIdFromImage,
+  extractStudentNumber,
 } from "../utils/geminiVision.js";
 
 // Helper: derive PO contributions from Exam → ÖÇ mapping
@@ -78,7 +79,7 @@ const cropQuestionRegions = async (pngBuffer, markers) => {
   const imageHeight = imageMetadata.height || 0;
 
   console.log(`📄 Şablon modu aktif - Görüntü boyutu: ${imageWidth}x${imageHeight}px`);
-  console.log(`📋 Template referans boyutu: ${template.templateSize?.width || 2480}x${template.templateSize?.height || 3508}px`);
+  console.log(`📋 Template referans boyutu: ${template.templateSize?.width || 1654}x${template.templateSize?.height || 2339}px`);
 
   const fallbackBoxes = template.questionScoreBoxes || [];
   const crops = [];
@@ -97,9 +98,9 @@ const cropQuestionRegions = async (pngBuffer, markers) => {
         console.log(`   📊 Soru ${box.number} yüzde koordinatları: x=${box.xPercent}%, y=${box.yPercent}%, w=${box.wPercent}%, h=${box.hPercent}%`);
         console.log(`   📐 Soru ${box.number} pixel koordinatları: left=${left}, top=${top}, width=${width}, height=${height}`);
       } else if (box.x !== undefined && box.y !== undefined) {
-        // Pixel bazlı koordinatlar varsa ölçeklendir (2480x3508 referans alınarak)
-        const templateWidth = template.templateSize?.width || 2480;
-        const templateHeight = template.templateSize?.height || 3508;
+        // Pixel bazlı koordinatlar varsa ölçeklendir (template size referans alınarak)
+        const templateWidth = template.templateSize?.width || 1654;
+        const templateHeight = template.templateSize?.height || 2339;
         const scaleX = imageWidth / templateWidth;
         const scaleY = imageHeight / templateHeight;
         left = Math.round(box.x * scaleX);
@@ -159,8 +160,8 @@ const cropQuestionRegions = async (pngBuffer, markers) => {
     } catch (error) {
       console.error(`Soru ${box.number} kesilirken hata:`, error.message);
       // Hata durumunda boş bir görüntü oluştur
-      const fallbackWidth = box.wPercent ? Math.round((box.wPercent / 100) * imageWidth) : (box.w || 350);
-      const fallbackHeight = box.hPercent ? Math.round((box.hPercent / 100) * imageHeight) : (box.h || 120);
+      const fallbackWidth = box.wPercent ? Math.round((box.wPercent / 100) * imageWidth) : (box.w || 300);
+      const fallbackHeight = box.hPercent ? Math.round((box.hPercent / 100) * imageHeight) : (box.h || 37);
       const emptyBuf = await sharp({
         create: {
           width: Math.max(1, fallbackWidth),
@@ -180,14 +181,169 @@ const cropQuestionRegions = async (pngBuffer, markers) => {
   return crops;
 };
 
-// Yardımcı: Dosya adından veya OCR'den öğrenci no çıkar
-const extractStudentNumberFromFile = async (fileName, pngBuffer) => {
+// Yardımcı: Öğrenci numarası bölgelerini kes (marker varsa warp ile, yoksa template fallback)
+const cropStudentNumberRegions = async (pngBuffer, markers) => {
+  // Marker başarıyla bulunmuşsa warp + studentNumberBoxes
+  if (markers?.success) {
+    const { warpedImage, studentNumberBoxes } = await warpAndDefineROIs(pngBuffer, markers);
+    const crops = [];
+    for (const box of studentNumberBoxes) {
+      const buf = await cropROI(warpedImage, box);
+      crops.push(buf);
+    }
+    return crops;
+  }
+
+  // Fallback: template koordinatları ile orijinal PNG üzerinden kes
+  const imageMetadata = await sharp(pngBuffer).metadata();
+  const imageWidth = imageMetadata.width || 0;
+  const imageHeight = imageMetadata.height || 0;
+
+  console.log(`📄 Öğrenci numarası kesiliyor - Görüntü boyutu: ${imageWidth}x${imageHeight}px`);
+
+  const fallbackBoxes = template.studentNumberBoxes || [];
+  const crops = [];
+  
+  for (const box of fallbackBoxes) {
+    try {
+      // Yüzde bazlı koordinatları kullan (her görüntü boyutunda çalışır)
+      let left, top, width, height;
+      
+      if (box.xPercent !== undefined && box.yPercent !== undefined) {
+        // Yüzde bazlı koordinatlar varsa onları kullan
+        left = Math.round((box.xPercent / 100) * imageWidth);
+        top = Math.round((box.yPercent / 100) * imageHeight);
+        width = Math.round((box.wPercent / 100) * imageWidth);
+        height = Math.round((box.hPercent / 100) * imageHeight);
+      } else if (box.x !== undefined && box.y !== undefined) {
+        // Pixel bazlı koordinatlar varsa ölçeklendir (template size referans alınarak)
+        const templateWidth = template.templateSize?.width || 1654;
+        const templateHeight = template.templateSize?.height || 2339;
+        const scaleX = imageWidth / templateWidth;
+        const scaleY = imageHeight / templateHeight;
+        left = Math.round(box.x * scaleX);
+        top = Math.round(box.y * scaleY);
+        width = Math.round(box.w * scaleX);
+        height = Math.round(box.h * scaleY);
+      } else {
+        throw new Error(`Öğrenci numarası rakam ${box.digit} için geçerli koordinat bulunamadı`);
+      }
+
+      // Koordinatları görüntü sınırları içinde tut
+      left = Math.max(0, Math.min(left, imageWidth - 1));
+      top = Math.max(0, Math.min(top, imageHeight - 1));
+      width = Math.max(1, Math.min(width, imageWidth - left));
+      height = Math.max(1, Math.min(height, imageHeight - top));
+
+      // Koordinatları görüntü sınırları içinde tut (ekstra kontrol)
+      if (left + width > imageWidth) {
+        width = imageWidth - left;
+        console.warn(`⚠️ Öğrenci numarası rakam ${box.digit} için width düzeltildi: ${width} (imageWidth: ${imageWidth})`);
+      }
+      if (top + height > imageHeight) {
+        height = imageHeight - top;
+        console.warn(`⚠️ Öğrenci numarası rakam ${box.digit} için height düzeltildi: ${height} (imageHeight: ${imageHeight})`);
+      }
+
+      // Geçerlilik kontrolü
+      if (width <= 0 || height <= 0 || left < 0 || top < 0 || 
+          left + width > imageWidth || top + height > imageHeight) {
+        console.warn(`⚠️ Öğrenci numarası rakam ${box.digit} için geçersiz koordinatlar: left=${left}, top=${top}, width=${width}, height=${height}, imageSize=${imageWidth}x${imageHeight}`);
+        // Geçersiz koordinatlar için boş bir görüntü oluştur
+        const emptyBuf = await sharp({
+          create: {
+            width: Math.max(1, 67),
+            height: Math.max(1, 68),
+            channels: 3,
+            background: { r: 255, g: 255, b: 255 }
+          }
+        }).png().toBuffer();
+        crops.push(emptyBuf);
+        continue;
+      }
+
+      const buf = await sharp(pngBuffer)
+        .extract({ left, top, width, height })
+        .png()
+        .toBuffer();
+      
+      crops.push(buf);
+    } catch (error) {
+      console.error(`Öğrenci numarası rakam ${box.digit} kesilirken hata:`, error.message);
+      // Hata durumunda boş bir görüntü oluştur
+      const fallbackWidth = box.wPercent ? Math.round((box.wPercent / 100) * imageWidth) : (box.w || 67);
+      const fallbackHeight = box.hPercent ? Math.round((box.hPercent / 100) * imageHeight) : (box.h || 68);
+      const emptyBuf = await sharp({
+        create: {
+          width: Math.max(1, fallbackWidth),
+          height: Math.max(1, fallbackHeight),
+          channels: 3,
+          background: { r: 255, g: 255, b: 255 }
+        }
+      }).png().toBuffer();
+      crops.push(emptyBuf);
+    }
+  }
+  return crops;
+};
+
+// Yardımcı: Dosya adından veya koordinat tabanlı OCR ile öğrenci no çıkar
+const extractStudentNumberFromFile = async (fileName, pngBuffer, markers) => {
+  // 1) Önce dosya adından dene
   const regex = /\b(20\d{4,6}|\d{7,12})\b/;
   const nameMatch = fileName ? fileName.match(regex) : null;
-  if (nameMatch) return nameMatch[0];
-  // Fallback: Gemini OCR
+  if (nameMatch) {
+    console.log(`✅ Öğrenci numarası dosya adından bulundu: ${nameMatch[0]}`);
+    return nameMatch[0];
+  }
+
+  // 2) Koordinat tabanlı okuma (template veya warp sonrası)
+  try {
+    console.log(`🔍 Öğrenci numarası koordinat tabanlı okunuyor...`);
+    const digitBoxes = await cropStudentNumberRegions(pngBuffer, markers);
+    if (digitBoxes && digitBoxes.length > 0) {
+      // İlk deneme
+      let studentNumber = await extractStudentNumber(digitBoxes);
+      
+      // Doğrulama: Eğer okunan numara geçersizse (çok fazla 0 varsa veya çok kısa ise) tekrar dene
+      const zeroCount = (studentNumber.match(/0/g) || []).length;
+      const isValid = studentNumber.length >= 7 && studentNumber.length <= 9 && zeroCount < studentNumber.length * 0.7;
+      
+      if (!isValid && studentNumber.length > 0) {
+        console.warn(`⚠️ İlk okuma şüpheli: ${studentNumber} (${zeroCount} sıfır, ${studentNumber.length} hane), tekrar deneniyor...`);
+        // 1 saniye bekle ve tekrar dene
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const retryNumber = await extractStudentNumber(digitBoxes);
+        if (retryNumber && retryNumber.length >= 7 && retryNumber.length <= 9) {
+          const retryZeroCount = (retryNumber.match(/0/g) || []).length;
+          if (retryZeroCount < retryNumber.length * 0.7) {
+            console.log(`✅ Retry başarılı: ${retryNumber} (ilk: ${studentNumber})`);
+            studentNumber = retryNumber;
+          }
+        }
+      }
+      
+      if (studentNumber && studentNumber.length >= 7 && studentNumber.length <= 9) {
+        console.log(`✅ Öğrenci numarası koordinat tabanlı okundu: ${studentNumber} (${studentNumber.length} hane)`);
+        return studentNumber;
+      } else if (studentNumber) {
+        console.warn(`⚠️ Öğrenci numarası beklenmeyen uzunlukta: ${studentNumber} (${studentNumber.length} hane, beklenen: 7-9)`);
+      }
+    }
+  } catch (error) {
+    console.warn(`⚠️ Koordinat tabanlı öğrenci numarası okuma hatası:`, error.message);
+  }
+
+  // 3) Son çare: Tüm görüntüden OCR
+  console.log(`🔍 Öğrenci numarası tüm görüntüden OCR ile okunuyor...`);
   const ocrId = await extractStudentIdFromImage(pngBuffer);
-  return ocrId || null;
+  if (ocrId) {
+    console.log(`✅ Öğrenci numarası OCR ile bulundu: ${ocrId}`);
+    return ocrId;
+  }
+
+  console.error(`❌ Öğrenci numarası tespit edilemedi`);
+  return null;
 };
 
 // Batch durum takibi (hafıza içi)
@@ -551,14 +707,14 @@ const startBatchScore = async (req, res) => {
           // 1) PDF -> PNG
           const { buffer: pngBuffer } = await pdfToPng(file.buffer);
 
-          // 2) Öğrenci no
-          const studentNumber = await extractStudentNumberFromFile(file.originalname, pngBuffer);
+          // 2) Marker (öğrenci numarası okuma için gerekli)
+          const markers = await detectMarkers(pngBuffer);
+
+          // 3) Öğrenci no (koordinat tabanlı okuma)
+          const studentNumber = await extractStudentNumberFromFile(file.originalname, pngBuffer, markers);
           if (!studentNumber) {
             throw new Error("Öğrenci numarası tespit edilemedi");
           }
-
-          // 3) Marker
-          const markers = await detectMarkers(pngBuffer);
 
           // 4) Crop
           const questionCrops = await cropQuestionRegions(pngBuffer, markers);
@@ -584,15 +740,27 @@ const startBatchScore = async (req, res) => {
             learningOutcomeCode: loMap.get(item.questionNumber) || null,
           }));
 
-          // 7) Kaydet
-          await StudentExamResult.create({
-            studentNumber,
-            examId,
-            courseId: exam.courseId,
-            questionScores: mergedScores,
-            outcomePerformance: {},
-            programOutcomePerformance: {},
-          });
+          // 7) Toplam puan hesapla
+          const totalScore = mergedScores.reduce((sum, item) => sum + (item.score || 0), 0);
+          const maxTotalScore = exam.questionCount * exam.maxScorePerQuestion;
+          const percentage = maxTotalScore > 0 ? Math.round((totalScore / maxTotalScore) * 100) : 0;
+
+          // 8) Kaydet veya güncelle (aynı öğrenci ve sınav için son puanlama geçerli)
+          await StudentExamResult.findOneAndUpdate(
+            { studentNumber, examId },
+            {
+              studentNumber,
+              examId,
+              courseId: exam.courseId,
+              questionScores: mergedScores,
+              totalScore,
+              maxTotalScore,
+              percentage,
+              outcomePerformance: {},
+              programOutcomePerformance: {},
+            },
+            { upsert: true, new: true } // Eğer yoksa oluştur, varsa güncelle
+          );
 
           status.successCount += 1;
           status.statuses.push({
@@ -687,12 +855,9 @@ const submitExamScores = async (req, res) => {
     const scored = [];
     for (const crop of questionCrops) {
       try {
-        console.log(`🔍 Soru ${crop.questionNumber} için Gemini Vision API çağrılıyor...`);
         const score = await extractNumberFromImage(crop.buffer);
-        console.log(`✅ Soru ${crop.questionNumber} puanı: ${score}`);
         scored.push({ questionNumber: crop.questionNumber, score });
       } catch (err) {
-        console.error(`❌ Soru ${crop.questionNumber} okuma hatası:`, err.message);
         scored.push({ questionNumber: crop.questionNumber, score: 0, error: err.message });
       }
     }
@@ -707,23 +872,33 @@ const submitExamScores = async (req, res) => {
       learningOutcomeCode: loMap.get(item.questionNumber) || null,
     }));
 
-    // 6) DB kaydet: StudentExamResult
-    const resultDoc = await StudentExamResult.create({
-      studentNumber,
-      examId,
-      courseId: exam.courseId,
-      questionScores: mergedScores,
-      outcomePerformance: {}, // sonraki adımda hesaplanacak
-      programOutcomePerformance: {},
-    });
+    // 6) Toplam puan hesapla
+    const totalScore = mergedScores.reduce((sum, item) => sum + (item.score || 0), 0);
+    const maxTotalScore = exam.questionCount * exam.maxScorePerQuestion;
+    const percentage = maxTotalScore > 0 ? Math.round((totalScore / maxTotalScore) * 100) : 0;
+
+    // 7) DB kaydet veya güncelle: StudentExamResult (aynı öğrenci ve sınav için son puanlama geçerli)
+    const resultDoc = await StudentExamResult.findOneAndUpdate(
+      { studentNumber, examId },
+      {
+        studentNumber,
+        examId,
+        courseId: exam.courseId,
+        questionScores: mergedScores,
+        totalScore,
+        maxTotalScore,
+        percentage,
+        outcomePerformance: {}, // sonraki adımda hesaplanacak
+        programOutcomePerformance: {},
+      },
+      { upsert: true, new: true } // Eğer yoksa oluştur, varsa güncelle
+    );
 
     return res.status(201).json({
       success: true,
       data: {
         pngPath,
         markers,
-        processingMode: markers?.success ? "marker_based" : "template_fallback",
-        processingMessage: markers?.message || (markers?.success ? "Marker tabanlı işleme başarılı" : "Marker bulunamadı, şablon modunda kesildi"),
         crops: questionCrops.map((c) => ({
           questionNumber: c.questionNumber,
           imagePath: c.imagePath,
@@ -746,11 +921,71 @@ const getExamResults = async (req, res) => {
   try {
     const { examId } = req.params;
     const results = await StudentExamResult.find({ examId }).sort({ createdAt: -1 });
-    return res.status(200).json({ success: true, data: results });
+    
+    // Eski kayıtlar için totalScore hesapla (eğer yoksa)
+    const updatedResults = await Promise.all(
+      results.map(async (result) => {
+        if (result.totalScore === undefined || result.totalScore === null || result.totalScore === 0) {
+          // TotalScore hesapla
+          const totalScore = (result.questionScores || []).reduce((sum, qs) => sum + (qs.score || 0), 0);
+          
+          // Exam bilgisini al
+          const exam = await Exam.findById(examId);
+          if (exam) {
+            const maxTotalScore = exam.questionCount * exam.maxScorePerQuestion;
+            const percentage = maxTotalScore > 0 ? Math.round((totalScore / maxTotalScore) * 100) : 0;
+            
+            // Güncelle
+            result.totalScore = totalScore;
+            result.maxTotalScore = maxTotalScore;
+            result.percentage = percentage;
+            await result.save();
+          }
+        }
+        return result;
+      })
+    );
+    
+    return res.status(200).json({ success: true, data: updatedResults });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message || "Sınav sonuçları getirilemedi",
+    });
+  }
+};
+
+// Delete all exam results (reset all)
+const deleteAllExamResults = async (req, res) => {
+  try {
+    const deletedCount = await StudentExamResult.deleteMany({});
+    return res.status(200).json({
+      success: true,
+      message: `Tüm sınav sonuçları silindi (${deletedCount.deletedCount} kayıt)`,
+      deletedCount: deletedCount.deletedCount,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Sınav sonuçları silinemedi",
+    });
+  }
+};
+
+// Delete exam results for a specific exam
+const deleteExamResults = async (req, res) => {
+  try {
+    const { examId } = req.params;
+    const deletedCount = await StudentExamResult.deleteMany({ examId });
+    return res.status(200).json({
+      success: true,
+      message: `Sınav sonuçları silindi (${deletedCount.deletedCount} kayıt)`,
+      deletedCount: deletedCount.deletedCount,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Sınav sonuçları silinemedi",
     });
   }
 };
@@ -764,6 +999,8 @@ export {
   derivePCFromExam,
   submitExamScores,
   getExamResults,
+  deleteAllExamResults,
+  deleteExamResults,
   startBatchScore,
   getBatchStatus,
 };

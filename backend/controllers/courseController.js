@@ -466,13 +466,38 @@ const updateCourse = async (req, res) => {
       }
     }
 
-    // Handle students
+    // Handle students - mevcut öğrencileri koru, yeni öğrencileri ekle
     if (students !== undefined) {
-      updateData.students = students;
-      // Create or update Student documents
-      const studentIds = [];
+      // Mevcut öğrencileri al
+      const existingStudents = existingCourse.students || [];
+      const existingStudentNumbers = new Set(
+        existingStudents.map(s => 
+          typeof s === 'object' && s !== null ? s.studentNumber : s
+        )
+      );
+
+      // Yeni öğrencileri mevcut listeye ekle (duplicate kontrolü ile)
+      const mergedStudents = [...existingStudents];
+      const newStudentNumbers = new Set();
+
       for (const studentData of students) {
         if (studentData.studentNumber && studentData.fullName) {
+          const studentNumber = studentData.studentNumber;
+          
+          // Eğer bu öğrenci numarası zaten varsa, atla (duplicate)
+          if (existingStudentNumbers.has(studentNumber) || newStudentNumbers.has(studentNumber)) {
+            console.log(`⚠️  Öğrenci ${studentNumber} zaten listede, atlanıyor`);
+            continue;
+          }
+
+          // Yeni öğrenci ekle
+          newStudentNumbers.add(studentNumber);
+          mergedStudents.push({
+            studentNumber: studentData.studentNumber,
+            fullName: studentData.fullName,
+          });
+
+          // Student document'ini oluştur veya güncelle
           let student = await Student.findOne({
             studentNumber: studentData.studentNumber,
           });
@@ -484,10 +509,16 @@ const updateCourse = async (req, res) => {
               department: courseDept,
             });
             student = await student.save();
+            console.log(`✅ Yeni öğrenci eklendi: ${studentData.studentNumber} - ${studentData.fullName}`);
+          } else {
+            console.log(`ℹ️  Öğrenci zaten mevcut: ${studentData.studentNumber}`);
           }
-          studentIds.push(student._id);
         }
       }
+
+      // Güncellenmiş öğrenci listesini kaydet
+      updateData.students = mergedStudents;
+      console.log(`📊 Toplam öğrenci sayısı: ${mergedStudents.length} (${existingStudents.length} mevcut + ${mergedStudents.length - existingStudents.length} yeni)`);
     }
 
     // Update course

@@ -8,6 +8,8 @@ import {
   deleteExam,
   submitExamScores,
   getExamResults,
+  deleteExamResults,
+  deleteAllExamResults,
   startBatchScore,
   getBatchStatus,
 } from "../controllers/examController.js";
@@ -32,6 +34,10 @@ router.get("/:examId/batch-status", getBatchStatus);
 
 // Results list - Spesifik route, :id'den önce
 router.get("/:examId/results", getExamResults);
+// Delete results for a specific exam
+router.delete("/:examId/results", deleteExamResults);
+// Delete all exam results (reset)
+router.delete("/results/all", deleteAllExamResults);
 // Analysis (MÜDEK) - Spesifik route, :id'den önce
 router.get("/:id/analysis", getExamAnalysis);
 

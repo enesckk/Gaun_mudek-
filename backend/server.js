@@ -2,16 +2,64 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+// Static file serving for debug images
+const debugImagesPath = path.join(__dirname, "temp", "exam_crops");
+app.use("/api/debug-images", express.static(debugImagesPath));
+
+// Debug endpoint to list available images
+app.get("/api/debug-images-list", (req, res) => {
+  try {
+    const fs = require("fs");
+    if (!fs.existsSync(debugImagesPath)) {
+      return res.json({ success: false, message: "Debug images directory does not exist", path: debugImagesPath });
+    }
+    const files = fs.readdirSync(debugImagesPath).filter(f => f.endsWith('.png'));
+    res.json({ 
+      success: true, 
+      path: debugImagesPath,
+      count: files.length,
+      files: files.slice(0, 20) // İlk 20 dosyayı göster
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK" });
+});
+
+// API key durumunu kontrol et
+app.get("/api/check-api-key", (req, res) => {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const googleKey = process.env.GOOGLE_API_KEY;
+  const apiKey = geminiKey || googleKey;
+  
+  const info = {
+    geminiApiKeyFound: !!geminiKey,
+    googleApiKeyFound: !!googleKey,
+    apiKeyFound: !!apiKey,
+    apiKeyLength: apiKey ? apiKey.length : 0,
+    apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : "BULUNAMADI",
+    apiKeyStartsWithAIza: apiKey ? apiKey.startsWith("AIza") : false,
+    hasQuotes: apiKey ? (apiKey.includes('"') || apiKey.includes("'")) : false,
+    envFileLocation: ".env dosyası backend klasöründe olmalı"
+  };
+  
+  res.json({ success: true, data: info });
 });
 
 // Gemini API test endpoint

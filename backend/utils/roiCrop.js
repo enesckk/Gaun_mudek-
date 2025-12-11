@@ -1,7 +1,9 @@
 import sharp from "sharp";
 
 // Try to load OpenCV - will be set dynamically in functions
+// Use global cv if available from markerDetect.js
 let cv = null;
+let opencvType = null;
 
 /**
  * Warp image using perspective transform and crop ROIs
@@ -10,19 +12,51 @@ let cv = null;
  * @returns {Promise<Object>} Warped image buffer and ROI definitions
  */
 async function warpAndDefineROIs(imageBuffer, markers) {
-  // Try to load OpenCV if not already loaded
-  if (!cv) {
-    try {
-      const cvModule = await import("opencv4nodejs").catch(() => null);
-      cv = cvModule?.default || cvModule || null;
-    } catch (error) {
-      cv = null;
+  // Use global cv if available (set by markerDetect.js)
+  const opencv = global.cv || cv;
+  const cvType = global.opencvType || opencvType;
+  
+  if (!opencv) {
+    // Try to load OpenCV if not already loaded
+    if (!cv) {
+      try {
+        // First try opencv4nodejs
+        const cvModule = await import("opencv4nodejs").catch(() => null);
+        if (cvModule) {
+          cv = cvModule?.default || cvModule || null;
+          if (cv) {
+            opencvType = 'opencv4nodejs';
+            global.cv = cv;
+            global.opencvType = opencvType;
+          }
+        }
+      } catch (error) {
+        // Ignore, try opencv.js
+      }
+      
+      // If opencv4nodejs not available, try opencv.js
+      if (!cv) {
+        try {
+          const opencvJs = await import("opencv.js").catch(() => null);
+          if (opencvJs) {
+            cv = opencvJs.default || opencvJs;
+            opencvType = 'opencv.js';
+            global.cv = cv;
+            global.opencvType = opencvType;
+          }
+        } catch (error) {
+          cv = null;
+        }
+      }
     }
   }
   
-  if (!cv) {
+  const finalCv = global.cv || cv;
+  const finalCvType = global.opencvType || opencvType;
+  
+  if (!finalCv) {
     throw new Error(
-      "Perspective transform requires opencv4nodejs. Please install: npm install opencv4nodejs"
+      "Perspective transform requires OpenCV. Please install: npm install opencv4nodejs or npm install opencv.js"
     );
   }
 
@@ -47,35 +81,76 @@ async function warpAndDefineROIs(imageBuffer, markers) {
       [targetWidth, targetHeight],
     ];
 
-    // Convert buffer to OpenCV Mat
-    const image = cv.imdecode(imageBuffer);
+    let image, warped, warpedBuffer;
 
-    // Get perspective transform matrix
-    const srcMat = cv.matFromArray(4, 1, cv.CV_32FC2, srcPoints.flat());
-    const dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, dstPoints.flat());
-    const transformMatrix = cv.getPerspectiveTransform(srcMat, dstMat);
-
-    // Apply perspective transform
-    const warped = image.warpPerspective(
-      transformMatrix,
-      new cv.Size(targetWidth, targetHeight)
-    );
-
-    // Convert back to buffer
-    const warpedBuffer = Buffer.from(cv.imencode(".png", warped));
+    if (finalCvType === 'opencv.js') {
+      // opencv.js API - different approach
+      // Convert buffer to image data using Sharp first
+      const imageData = await sharp(imageBuffer)
+        .raw()
+        .ensureAlpha()
+        .toBuffer({ resolveWithObject: true });
+      
+      const { data, info } = imageData;
+      
+      // Create Mat from image data
+      image = new finalCv.Mat(info.height, info.width, finalCv.CV_8UC4);
+      image.data.set(data);
+      
+      // Create source and destination point arrays
+      const srcMat = finalCv.matFromArray(4, 1, finalCv.CV_32FC2, srcPoints.flat());
+      const dstMat = finalCv.matFromArray(4, 1, finalCv.CV_32FC2, dstPoints.flat());
+      
+      // Get perspective transform matrix
+      const transformMatrix = finalCv.getPerspectiveTransform(srcMat, dstMat);
+      
+      // Apply perspective transform
+      warped = new finalCv.Mat();
+      finalCv.warpPerspective(image, warped, transformMatrix, new finalCv.Size(targetWidth, targetHeight));
+      
+      // Convert back to buffer using Sharp
+      const warpedData = new Uint8Array(warped.data);
+      warpedBuffer = await sharp(warpedData, {
+        raw: {
+          width: targetWidth,
+          height: targetHeight,
+          channels: 4
+        }
+      }).png().toBuffer();
+      
+      // Cleanup
+      image.delete();
+      warped.delete();
+      srcMat.delete();
+      dstMat.delete();
+      transformMatrix.delete();
+    } else {
+      // opencv4nodejs API (original code)
+      image = finalCv.imdecode(imageBuffer);
+      const srcMat = finalCv.matFromArray(4, 1, finalCv.CV_32FC2, srcPoints.flat());
+      const dstMat = finalCv.matFromArray(4, 1, finalCv.CV_32FC2, dstPoints.flat());
+      const transformMatrix = finalCv.getPerspectiveTransform(srcMat, dstMat);
+      warped = image.warpPerspective(
+        transformMatrix,
+        new finalCv.Size(targetWidth, targetHeight)
+      );
+      warpedBuffer = Buffer.from(finalCv.imencode(".png", warped));
+    }
 
     // Define ROIs (fixed pixel regions after warping)
+    // Warp sonrası görüntü boyutu: 2480x3508
+    // Orijinal görüntü boyutu: 1654x2339
+    // Ölçek faktörü: scaleX = 2480/1654 ≈ 1.498, scaleY = 3508/2339 ≈ 1.500
     const studentNumberBoxes = [
-      { x: 900, y: 1150, w: 140, h: 140 },
-      { x: 1040, y: 1150, w: 140, h: 140 },
-      { x: 1180, y: 1150, w: 140, h: 140 },
-      { x: 1320, y: 1150, w: 140, h: 140 },
-      { x: 1460, y: 1150, w: 140, h: 140 },
-      { x: 1600, y: 1150, w: 140, h: 140 },
-      { x: 1740, y: 1150, w: 140, h: 140 },
-      { x: 1880, y: 1150, w: 140, h: 140 },
-      { x: 2020, y: 1150, w: 140, h: 140 },
-      { x: 2160, y: 1150, w: 140, h: 140 },
+      { x: 762, y: 1890, w: 99, h: 102 },   // Hane 1: (509,1260,575,1328) -> warp sonrası
+      { x: 867, y: 1890, w: 100, h: 102 },  // Hane 2: (579,1260,646,1328)
+      { x: 974, y: 1890, w: 100, h: 102 },  // Hane 3: (650,1260,717,1328)
+      { x: 1080, y: 1890, w: 100, h: 102 }, // Hane 4: (721,1260,788,1328)
+      { x: 1187, y: 1890, w: 100, h: 102 }, // Hane 5: (792,1260,859,1328)
+      { x: 1293, y: 1890, w: 100, h: 102 }, // Hane 6: (863,1260,930,1328)
+      { x: 1400, y: 1890, w: 100, h: 102 }, // Hane 7: (934,1260,1001,1328)
+      { x: 1506, y: 1890, w: 100, h: 102 }, // Hane 8: (1005,1260,1072,1328)
+      { x: 1612, y: 1890, w: 100, h: 102 }  // Hane 9: (1076,1260,1143,1328)
     ];
 
     const examIdBoxes = [

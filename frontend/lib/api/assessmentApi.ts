@@ -65,3 +65,22 @@ export const getPOAchievement = async (
   return response.data.data || [];
 };
 
+/**
+ * Get student achievements per student for a course
+ */
+export const getStudentAchievements = async (
+  courseId: string
+): Promise<Record<string, Array<{
+  learningOutcome: {
+    _id: string;
+    code: string;
+    description: string;
+  };
+  achievedPercentage: number;
+}>>> => {
+  const response = await apiClient.get(
+    `/assessments/course/${courseId}/student-achievements`
+  );
+  return response.data.data || {};
+};
+

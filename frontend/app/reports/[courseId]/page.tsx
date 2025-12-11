@@ -31,6 +31,7 @@ import { studentApi, type Student } from "@/lib/api/studentApi";
 import {
   getLOAchievement,
   getPOAchievement,
+  getStudentAchievements,
   type LOAchievement,
   type POAchievement,
 } from "@/lib/api/assessmentApi";
@@ -45,6 +46,14 @@ export default function CourseReportPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loAchievements, setLOAchievements] = useState<LOAchievement[]>([]);
   const [poAchievements, setPOAchievements] = useState<POAchievement[]>([]);
+  const [studentAchievements, setStudentAchievements] = useState<Record<string, Array<{
+    learningOutcome: {
+      _id: string;
+      code: string;
+      description: string;
+    };
+    achievedPercentage: number;
+  }>>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -76,13 +85,15 @@ export default function CourseReportPage() {
       setStudents(relevantStudents);
 
       // Fetch aggregated achievements using new assessment API
-      const [loData, poData] = await Promise.all([
+      const [loData, poData, studentAchievementsData] = await Promise.all([
         getLOAchievement(courseId),
         getPOAchievement(courseId),
+        getStudentAchievements(courseId),
       ]);
 
       setLOAchievements(loData);
       setPOAchievements(poData);
+      setStudentAchievements(studentAchievementsData);
     } catch (error: any) {
       toast.error("Rapor verileri yüklenemedi");
       console.error(error);
@@ -318,7 +329,7 @@ export default function CourseReportPage() {
       {students.length > 0 && loAchievements.length > 0 && (
         <StudentComparisonChart
           students={students}
-          studentAchievements={{}}
+          studentAchievements={studentAchievements}
         />
       )}
 
@@ -330,7 +341,7 @@ export default function CourseReportPage() {
             _id: lo.code,
             code: lo.code,
           }))}
-          studentAchievements={{}}
+          studentAchievements={studentAchievements}
         />
       )}
       </div>

@@ -22,8 +22,9 @@ export function calculateQuestionAnalysis(studentResults, exam) {
   (studentResults || []).forEach((result) => {
     (result.questionScores || []).forEach((qs) => {
       if (!questionMap.has(qs.questionNumber)) return;
+      const score = Number(qs.score || 0);
       questionMap.get(qs.questionNumber).scores.push({
-        score: Number(qs.score || 0),
+        score: score,
         learningOutcomeCode: qs.learningOutcomeCode || null,
       });
     });
@@ -31,9 +32,14 @@ export function calculateQuestionAnalysis(studentResults, exam) {
 
   // Hesapla
   const analysis = Array.from(questionMap.values()).map((item) => {
-    const scores = item.scores.map((s) => s.score);
-    const avg = scores.length
-      ? scores.reduce((a, b) => a + b, 0) / scores.length
+    const allScores = item.scores.map((s) => s.score);
+    // Sadece 0'dan büyük puan alanları say (cevap verenler)
+    const answeredScores = allScores.filter((s) => s > 0);
+    const answeredCount = answeredScores.length;
+    
+    // Ortalama hesaplarken tüm öğrencileri dahil et (0 alanlar da dahil)
+    const avg = allScores.length
+      ? allScores.reduce((a, b) => a + b, 0) / allScores.length
       : 0;
     const success = maxScore > 0 ? (avg / maxScore) * 100 : 0;
     const loCode =
@@ -45,7 +51,7 @@ export function calculateQuestionAnalysis(studentResults, exam) {
       averageScore: Number(avg.toFixed(2)),
       successRate: Number(success.toFixed(2)),
       learningOutcomeCode: loCode,
-      attempts: scores.length,
+      attempts: answeredCount, // Sadece cevap verenler (0'dan büyük puan alanlar)
     };
   });
 

@@ -1,9 +1,11 @@
 // Vercel Serverless Function wrapper for Express backend
-// ES Module import
-// Backend klasörü prebuild script ile api/backend/ içine kopyalanıyor
+// Backend klasörü installCommand ile api/backend/ içine kopyalanıyor
+// Vercel @vercel/node builder Express app'i otomatik handle ediyor
+
+// Backend'i import et
 import expressApp from './backend/server.js';
 
 // Vercel serverless function handler
-// Express app'i direkt export et, Vercel otomatik handle edecek
+// @vercel/node Express app'i otomatik olarak handler'a çeviriyor
 export default expressApp;
 

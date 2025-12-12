@@ -3,7 +3,7 @@
   "builds": [
     {
       "src": "api/index.mjs",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
     },
     {
       "src": "frontend/package.json",
@@ -20,6 +20,6 @@
       "dest": "frontend/$1"
     }
   ],
-      "installCommand": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../api && npm install"
+      "installCommand": "cd api && npm install && cd ../backend && npm install && cd ../frontend && npm install"
 }
 

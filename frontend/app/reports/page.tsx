@@ -323,7 +323,7 @@ export default function ReportsPage() {
                           <Badge variant="outline" className="font-mono text-xs">
                             {course.code}
                           </Badge>
-                          {course.examCount > 0 && (
+                          {(course.examCount || 0) > 0 && (
                             <Badge variant="default" className="bg-[#0a294e] text-white text-xs">
                               Rapor Hazır
                             </Badge>

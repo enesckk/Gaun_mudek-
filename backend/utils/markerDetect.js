@@ -1,15 +1,36 @@
 import sharp from "sharp";
 
-// Try to load OpenCV at module level
+// Lazy load OpenCV - only load when needed
 let cv = null;
-try {
-  const cvModule = await import("opencv4nodejs").catch(() => null);
-  cv = cvModule?.default || cvModule || null;
-  if (cv) {
-    global.cv = cv; // Store in global for consistency
+let opencvLoadAttempted = false;
+
+async function loadOpenCV() {
+  if (opencvLoadAttempted) {
+    return cv;
   }
-} catch (error) {
-  cv = null;
+  
+  opencvLoadAttempted = true;
+  
+  try {
+    // Only try to load on Windows (opencv4nodejs doesn't work on Linux)
+    if (process.platform === 'win32') {
+      const cvModule = await import("opencv4nodejs").catch(() => null);
+      cv = cvModule?.default || cvModule || null;
+      if (cv) {
+        global.cv = cv; // Store in global for consistency
+        console.log("✅ OpenCV loaded successfully");
+      } else {
+        console.warn("⚠️ OpenCV module not available (optional dependency)");
+      }
+    } else {
+      console.warn("⚠️ OpenCV not supported on Linux. Using fallback methods.");
+    }
+  } catch (error) {
+    console.warn("⚠️ OpenCV load failed (this is OK on Linux):", error.message);
+    cv = null;
+  }
+  
+  return cv;
 }
 
 /**
@@ -19,6 +40,11 @@ try {
  */
 export async function detectMarkers(imageBuffer) {
   try {
+    // Lazy load OpenCV if not already loaded
+    if (!cv && !global.cv) {
+      await loadOpenCV();
+    }
+
     if (!global.cv && !cv) {
       throw new Error("OpenCV not available");
     }

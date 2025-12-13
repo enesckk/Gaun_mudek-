@@ -108,12 +108,21 @@ const MONGODB_DB = process.env.MONGODB_DB || "mudek";
 
 // Render veya lokal için server'ı başlat
 async function startServer() {
+  console.log("🚀 Starting backend server...");
+  console.log(`📦 Node version: ${process.version}`);
+  console.log(`🖥️  Platform: ${process.platform}`);
+  console.log(`📍 Working directory: ${process.cwd()}`);
+  
   if (!MONGO_URI) {
     console.error("❌ MONGODB_URI (veya MONGO_URI) tanımlı değil. .env dosyanızı kontrol edin.");
+    console.error("❌ Render'da Environment Variables'dan MONGODB_URI'yi eklediğinizden emin olun.");
     process.exit(1);
   }
 
   try {
+    console.log("🔌 MongoDB'ye bağlanılıyor...");
+    console.log(`📊 Database: ${MONGODB_DB}`);
+    
     await mongoose.connect(MONGO_URI, {
       dbName: MONGODB_DB,
       serverSelectionTimeoutMS: 10000,
@@ -123,22 +132,44 @@ async function startServer() {
       socketTimeoutMS: 45000,
       family: 4,
     });
+    
     console.log("✅ MongoDB bağlantısı kuruldu");
     console.log(`📊 Veritabanı: ${MONGODB_DB}`);
 
     const serverPort = process.env.PORT || PORT;
-    app.listen(serverPort, () =>
-      console.log(`🚀 Backend running on port ${serverPort}`)
-    );
+    const server = app.listen(serverPort, () => {
+      console.log(`🚀 Backend running on port ${serverPort}`);
+      console.log(`🌐 Health check: http://localhost:${serverPort}/api/health`);
+    });
+    
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully...');
+      server.close(() => {
+        mongoose.connection.close(false, () => {
+          console.log('MongoDB connection closed.');
+          process.exit(0);
+        });
+      });
+    });
+    
   } catch (err) {
-    console.error("❌ MongoDB bağlantı hatası:", err.message);
+    console.error("❌ Server başlatma hatası:", err);
+    console.error("❌ Error message:", err.message);
+    console.error("❌ Error stack:", err.stack);
     
     if (err.message.includes("ECONNREFUSED") || err.message.includes("connect")) {
       console.error("\n💡 MongoDB servisi çalışmıyor. Lütfen MongoDB'yi başlatın:");
       console.error("   Windows: Yönetici olarak PowerShell açın ve şu komutu çalıştırın:");
       console.error("   Start-Service -Name MongoDB");
       console.error("\n   Veya Windows Services (services.msc) üzerinden 'MongoDB Server' servisini başlatın.");
-      console.error(`\n   Bağlantı URI: ${MONGO_URI}`);
+      console.error(`\n   Bağlantı URI: ${MONGO_URI ? 'Set (hidden)' : 'NOT SET'}`);
+    } else if (err.message.includes("authentication failed") || err.message.includes("bad auth")) {
+      console.error("\n💡 MongoDB authentication hatası:");
+      console.error("   MongoDB Atlas kullanıyorsanız:");
+      console.error("   1. Database User'ın password'ünü kontrol edin");
+      console.error("   2. IP whitelist'e Render'ın IP'sini ekleyin (veya 0.0.0.0/0)");
+      console.error("   3. Connection string'deki username/password'ü kontrol edin");
     }
     
     process.exit(1);
@@ -146,4 +177,7 @@ async function startServer() {
 }
 
 // Server'ı başlat
-startServer();
+startServer().catch((err) => {
+  console.error("❌ Fatal error in startServer:", err);
+  process.exit(1);
+});

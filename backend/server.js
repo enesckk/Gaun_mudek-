@@ -16,14 +16,23 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Same-origin requests veya allowed origins
-    // Production'da sadece FRONTEND_URL'e izin ver
-    // Development'ta localhost'a izin ver
-    if (!origin || allowedOrigins.some(allowed => origin.startsWith(allowed)) || process.env.NODE_ENV !== 'production') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Same-origin requests (no origin header)
+    if (!origin) {
+      return callback(null, true);
     }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Development mode: allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // Production: only allow specified origins
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 }));

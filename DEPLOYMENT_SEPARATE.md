@@ -76,9 +76,25 @@ Backend'de CORS yapılandırması `backend/server.js` içinde yapıldı:
 ## 📝 Environment Variables Özeti
 
 ### Frontend (Vercel)
+
+Vercel Dashboard → Settings → Environment Variables:
+
 ```
-NEXT_PUBLIC_API_BASE_URL=https://your-backend.onrender.com/api
+NEXT_PUBLIC_API_BASE_URL=https://gaun-mudek-backend.onrender.com/api
 ```
+
+**Not:** Render backend deploy edildikten sonra gerçek URL'i buraya ekleyin.
+
+### Frontend (Local Development)
+
+`frontend/.env.local` dosyası oluşturun (zaten .gitignore'da, commit edilmeyecek):
+
+```bash
+# frontend/.env.local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api
+```
+
+**Not:** `.env.local` dosyası `.gitignore`'da olduğu için Git'e commit edilmeyecek. Her developer kendi `.env.local` dosyasını oluşturmalı.
 
 ### Backend (Render)
 ```

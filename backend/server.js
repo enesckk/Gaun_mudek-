@@ -41,6 +41,12 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow localhost for local development (even in production mode on Render)
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      console.log('✅ CORS: Localhost detected, allowing');
+      return callback(null, true);
+    }
+    
     // Production: allow vercel.app and onrender.com domains (for flexibility)
     if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
       console.log('✅ CORS: Vercel/Render domain detected, allowing');
@@ -62,6 +68,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
+
+// Root route
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Backend API is running",
+    endpoints: {
+      health: "/api/health",
+      api: "/api",
+      courses: "/api/courses",
+      students: "/api/students",
+      exams: "/api/exams",
+    },
+  });
+});
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK" });
@@ -108,10 +129,15 @@ const MONGODB_DB = process.env.MONGODB_DB || "mudek";
 
 // Render veya lokal için server'ı başlat
 async function startServer() {
+  console.log("=".repeat(50));
   console.log("🚀 Starting backend server...");
   console.log(`📦 Node version: ${process.version}`);
   console.log(`🖥️  Platform: ${process.platform}`);
   console.log(`📍 Working directory: ${process.cwd()}`);
+  console.log(`🔧 PORT: ${PORT}`);
+  console.log(`🔧 MONGODB_DB: ${MONGODB_DB}`);
+  console.log(`🔧 MONGO_URI: ${MONGO_URI ? 'Set (hidden)' : 'NOT SET'}`);
+  console.log("=".repeat(50));
   
   if (!MONGO_URI) {
     console.error("❌ MONGODB_URI (veya MONGO_URI) tanımlı değil. .env dosyanızı kontrol edin.");
@@ -138,8 +164,11 @@ async function startServer() {
 
     const serverPort = process.env.PORT || PORT;
     const server = app.listen(serverPort, () => {
+      console.log("=".repeat(50));
       console.log(`🚀 Backend running on port ${serverPort}`);
       console.log(`🌐 Health check: http://localhost:${serverPort}/api/health`);
+      console.log(`🌐 API: http://localhost:${serverPort}/api`);
+      console.log("=".repeat(50));
     });
     
     // Graceful shutdown
@@ -154,9 +183,14 @@ async function startServer() {
     });
     
   } catch (err) {
-    console.error("❌ Server başlatma hatası:", err);
+    console.error("=".repeat(50));
+    console.error("❌ Server başlatma hatası:");
+    console.error("❌ Error name:", err.name);
     console.error("❌ Error message:", err.message);
-    console.error("❌ Error stack:", err.stack);
+    if (err.stack) {
+      console.error("❌ Error stack:", err.stack);
+    }
+    console.error("=".repeat(50));
     
     if (err.message.includes("ECONNREFUSED") || err.message.includes("connect")) {
       console.error("\n💡 MongoDB servisi çalışmıyor. Lütfen MongoDB'yi başlatın:");

@@ -75,14 +75,12 @@ export const courseApi = {
   },
 
   getById: async (id: string): Promise<Course> => {
-    // Ensure id is a string
-    const courseId = typeof id === 'string' ? id : id?.toString() || String(id);
-    if (!courseId || courseId === 'undefined' || courseId === 'null' || courseId === '[object Object]') {
+    if (!id || id === 'undefined' || id === 'null' || id === '[object Object]') {
       console.error('Invalid course ID provided to getById:', id);
-      throw new Error(`Geçersiz ders ID: ${courseId}`);
+      throw new Error(`Geçersiz ders ID: ${id}`);
     }
     try {
-      const response = await apiClient.get(`/courses/${courseId}`);
+      const response = await apiClient.get(`/courses/${id}`);
       return response.data.course || response.data.data;
     } catch (error: any) {
       console.error('Error fetching course by ID:', error);

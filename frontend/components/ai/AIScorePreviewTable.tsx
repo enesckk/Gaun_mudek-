@@ -117,13 +117,13 @@ export function AIScorePreviewTable({
       question = questionByNumber || null;
     }
     
+    const learningOutcomeCode = question && question.mappedLearningOutcomes && question.mappedLearningOutcomes.length > 0
+      ? question.mappedLearningOutcomes[0]
+      : answer.learningOutcomeCode || "-";
+    
     return {
       maxScore: question?.maxScore || answer.maxScore || 0,
-      learningOutcomeCode: question?.mappedLearningOutcome
-        ? typeof question.mappedLearningOutcome === "string"
-          ? "-"
-          : question.mappedLearningOutcome.code
-        : answer.learningOutcomeCode || "-",
+      learningOutcomeCode,
       hasQuestion: !!question,
       questionId: question?._id || answer.questionId || "",
     };

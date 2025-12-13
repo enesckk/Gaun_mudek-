@@ -16,8 +16,6 @@ import {
 import {
   programOutcomeApi,
   type ProgramOutcome,
-  type CreateProgramOutcomeDto,
-  type UpdateProgramOutcomeDto,
 } from "@/lib/api/programOutcomeApi";
 
 const programOutcomeSchema = z.object({
@@ -59,16 +57,10 @@ export function ProgramOutcomeForm({
   const onSubmit = async (data: ProgramOutcomeFormData) => {
     setIsSubmitting(true);
     try {
-      if (mode === "create") {
-        await programOutcomeApi.create(data as CreateProgramOutcomeDto);
-        toast.success("Program Outcome saved");
-        router.push("/program-outcomes");
-      } else if (mode === "edit" && programOutcomeId) {
-        await programOutcomeApi.update(programOutcomeId, data as UpdateProgramOutcomeDto);
-        toast.success("Program Outcome saved");
-        router.push("/program-outcomes");
-      }
-      onSuccess?.();
+      // Note: Program outcomes are now managed department-wise
+      // This form needs a department context to work properly
+      toast.error("Program outcomes must be managed through department settings. Please use the department program outcomes management page.");
+      console.warn("ProgramOutcomeForm used without department context");
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to save program outcome";

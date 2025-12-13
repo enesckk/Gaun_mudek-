@@ -62,13 +62,7 @@ export function QuestionForm({
       ? {
           number: initialData.number,
           maxScore: initialData.maxScore,
-          mappedLearningOutcomes: Array.isArray(initialData.mappedLearningOutcome)
-            ? initialData.mappedLearningOutcome
-            : typeof initialData.mappedLearningOutcome === "string"
-            ? [initialData.mappedLearningOutcome]
-            : (initialData.mappedLearningOutcome as any)?._id
-            ? [(initialData.mappedLearningOutcome as any)._id]
-            : [],
+          mappedLearningOutcomes: initialData.mappedLearningOutcomes || [],
         }
       : {
           number: 1,
@@ -94,7 +88,10 @@ export function QuestionForm({
 
       if (examData.courseId) {
         // Fetch course to get embedded learningOutcomes
-        const course = await courseApi.getById(examData.courseId);
+        const courseId = typeof examData.courseId === 'string' 
+          ? examData.courseId 
+          : (examData.courseId as any)?._id || String(examData.courseId);
+        const course = await courseApi.getById(courseId);
         if (course.learningOutcomes && Array.isArray(course.learningOutcomes)) {
           setLearningOutcomes(
             course.learningOutcomes.map((lo: any) => ({
@@ -243,7 +240,7 @@ export function QuestionForm({
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="start">
+            <PopoverContent className="w-full p-0">
               <div className="max-h-60 overflow-auto p-2">
                 {learningOutcomes.length === 0 ? (
                   <p className="text-sm text-muted-foreground p-2 text-center">

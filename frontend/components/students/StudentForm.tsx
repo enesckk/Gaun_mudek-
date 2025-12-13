@@ -89,7 +89,7 @@ export function StudentForm({
       const submitData: CreateStudentDto | UpdateStudentDto = {
         name: data.name,
         department: data.department || undefined,
-        classLevel: data.classLevel && data.classLevel !== "" ? Number(data.classLevel) : undefined,
+        classLevel: typeof data.classLevel === "number" ? data.classLevel : undefined,
       };
 
       if (mode === "create") {

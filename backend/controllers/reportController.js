@@ -23,6 +23,8 @@ export const getExamAnalysis = async (req, res) => {
     }
 
     const studentResults = await StudentExamResult.find({ examId: id });
+    
+    console.log(`📊 Analysis request for exam ${id}: Found ${studentResults.length} student results`);
 
     const questionAnalysis = calculateQuestionAnalysis(studentResults, exam);
     const learningOutcomeAnalysis = calculateOutcomePerformance(
@@ -38,14 +40,18 @@ export const getExamAnalysis = async (req, res) => {
     const weakestLO = [...learningOutcomeAnalysis].sort((a, b) => a.success - b.success)[0];
     const recommendations = weakestLO
       ? `ÖÇ ${weakestLO.code} için başarı düşük (%${weakestLO.success}). İçerik, örnek ve soru dağılımı iyileştirilmeli.`
+      : studentResults.length === 0
+      ? "Henüz öğrenci sonucu yok. PDF yükleyip puanlama yaptıktan sonra analiz görünecektir."
       : "Veri bulunamadı.";
+
+    console.log(`📊 Analysis calculated: ${questionAnalysis.length} questions, ${learningOutcomeAnalysis.length} LOs, ${programOutcomeAnalysis.length} POs`);
 
     return res.status(200).json({
       success: true,
       data: {
-        questionAnalysis,
-        learningOutcomeAnalysis,
-        programOutcomeAnalysis,
+        questionAnalysis: questionAnalysis || [],
+        learningOutcomeAnalysis: learningOutcomeAnalysis || [],
+        programOutcomeAnalysis: programOutcomeAnalysis || [],
         summary: { recommendations },
       },
     });

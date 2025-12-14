@@ -1,5 +1,8 @@
 import sharp from "sharp";
 
+// Check if OpenCV is enabled via environment variable
+const ENABLE_OPENCV = process.env.ENABLE_OPENCV === "true";
+
 // Try to load OpenCV - will be set dynamically in functions
 let cv = null;
 
@@ -10,6 +13,13 @@ let cv = null;
  * @returns {Promise<Object>} Warped image buffer and ROI definitions
  */
 async function warpAndDefineROIs(imageBuffer, markers) {
+  // Check if OpenCV is enabled
+  if (!ENABLE_OPENCV) {
+    throw new Error(
+      "OpenCV is disabled (ENABLE_OPENCV=false). Perspective transform not available in this environment."
+    );
+  }
+  
   // Try to load OpenCV if not already loaded
   if (!cv) {
     try {
@@ -22,7 +32,7 @@ async function warpAndDefineROIs(imageBuffer, markers) {
   
   if (!cv) {
     throw new Error(
-      "Perspective transform requires opencv4nodejs. Please install: npm install opencv4nodejs"
+      "Perspective transform requires opencv4nodejs. Please install: npm install opencv4nodejs or set ENABLE_OPENCV=true"
     );
   }
 

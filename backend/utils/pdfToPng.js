@@ -30,76 +30,84 @@ async function pdfToPng(pdfInput) {
       tempPdfPath = pdfInput;
     }
 
-    // Try using pdf-poppler first
-    try {
-      const pdfPopplerModule = await import("pdf-poppler");
-      const pdfPoppler = pdfPopplerModule.default || pdfPopplerModule;
-      const options = {
-        format: "png",
-        out_dir: path.join(__dirname, "../temp"),
-        out_prefix: `page_${Date.now()}`,
-        page: 1,
-      };
-
-      await pdfPoppler.convert(tempPdfPath, options);
-
-      const pngPath = path.join(
-        options.out_dir,
-        `${options.out_prefix}-1.png`
-      );
-      const pngBuffer = fs.readFileSync(pngPath);
-
-      // Temizlik: PDF'yi temizle ama PNG'yi sakla (path döndürülüyor)
-      if (isTempFile && fs.existsSync(tempPdfPath)) {
-        fs.unlinkSync(tempPdfPath);
-      }
-
-      return { buffer: pngBuffer, filePath: pngPath };
-    } catch (popplerError) {
-      // Fallback to pdftoppm (poppler-utils)
-      const outputPath = path.join(
-        process.cwd(),
-        "temp",
-        `output_${Date.now()}.png`
-      );
-      const outputDir = path.dirname(outputPath);
-
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-
+    // Check if pdf-poppler is enabled (it requires native binaries)
+    const ENABLE_PDF_POPPLER = process.env.ENABLE_PDF_POPPLER !== "false";
+    
+    // Try using pdf-poppler first (if enabled)
+    if (ENABLE_PDF_POPPLER) {
       try {
-        execSync(
-          `pdftoppm -png -f 1 -l 1 "${tempPdfPath}" "${outputPath.replace('.png', '')}"`,
-          { stdio: "ignore" }
+        const pdfPopplerModule = await import("pdf-poppler");
+        const pdfPoppler = pdfPopplerModule.default || pdfPopplerModule;
+        const options = {
+          format: "png",
+          out_dir: path.join(__dirname, "../temp"),
+          out_prefix: `page_${Date.now()}`,
+          page: 1,
+        };
+
+        await pdfPoppler.convert(tempPdfPath, options);
+
+        const pngPath = path.join(
+          options.out_dir,
+          `${options.out_prefix}-1.png`
         );
-
-        const pngFiles = fs
-          .readdirSync(outputDir)
-          .filter((f) => f.startsWith(path.basename(outputPath, ".png")) && f.endsWith(".png"));
-
-        if (pngFiles.length === 0) {
-          throw new Error("No PNG output generated");
-        }
-
-        const generatedPng = path.join(outputDir, pngFiles[0]);
-        const pngBuffer = fs.readFileSync(generatedPng);
+        const pngBuffer = fs.readFileSync(pngPath);
 
         // Temizlik: PDF'yi temizle ama PNG'yi sakla (path döndürülüyor)
         if (isTempFile && fs.existsSync(tempPdfPath)) {
           fs.unlinkSync(tempPdfPath);
         }
 
-        return { buffer: pngBuffer, filePath: generatedPng };
-      } catch (pdftoppmError) {
-        // Cleanup on error
-        if (isTempFile && fs.existsSync(tempPdfPath)) {
-          fs.unlinkSync(tempPdfPath);
-        }
-        throw new Error(
-          "PDF to PNG conversion failed. Please install pdf-poppler or poppler-utils."
-        );
+        return { buffer: pngBuffer, filePath: pngPath };
+      } catch (popplerError) {
+        // Fall through to pdftoppm fallback
+        console.warn("⚠️ pdf-poppler failed, falling back to pdftoppm:", popplerError.message);
       }
+    }
+    
+    // Fallback to pdftoppm (poppler-utils) - this should work on Linux
+    const outputPath = path.join(
+      process.cwd(),
+      "temp",
+      `output_${Date.now()}.png`
+    );
+    const outputDir = path.dirname(outputPath);
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    try {
+      execSync(
+        `pdftoppm -png -f 1 -l 1 "${tempPdfPath}" "${outputPath.replace('.png', '')}"`,
+        { stdio: "ignore" }
+      );
+
+      const pngFiles = fs
+        .readdirSync(outputDir)
+        .filter((f) => f.startsWith(path.basename(outputPath, ".png")) && f.endsWith(".png"));
+
+      if (pngFiles.length === 0) {
+        throw new Error("No PNG output generated");
+      }
+
+      const generatedPng = path.join(outputDir, pngFiles[0]);
+      const pngBuffer = fs.readFileSync(generatedPng);
+
+      // Temizlik: PDF'yi temizle ama PNG'yi sakla (path döndürülüyor)
+      if (isTempFile && fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+      }
+
+      return { buffer: pngBuffer, filePath: generatedPng };
+    } catch (pdftoppmError) {
+      // Cleanup on error
+      if (isTempFile && fs.existsSync(tempPdfPath)) {
+        fs.unlinkSync(tempPdfPath);
+      }
+      throw new Error(
+        "PDF to PNG conversion failed. Please install pdf-poppler or poppler-utils."
+      );
     }
   } catch (error) {
     throw new Error(`PDF to PNG conversion error: ${error.message}`);

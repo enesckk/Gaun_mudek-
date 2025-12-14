@@ -623,11 +623,17 @@ const startBatchScore = async (req, res) => {
           }
           console.log(`✅ [${file.originalname}] Student number: ${studentNumber}`);
 
-          // 3) Marker
-          const markers = await detectMarkers(pngBuffer);
-          console.log(`📸 [Batch ${studentNumber}] Markers success: ${markers?.success || false}`);
+          // 3) Marker (OpenCV disabled on Render - will use fallback)
+          let markers = { success: false, reason: "opencv_disabled" };
+          try {
+            markers = await detectMarkers(pngBuffer);
+            console.log(`📸 [Batch ${studentNumber}] Markers success: ${markers?.success || false}`);
+          } catch (markerError) {
+            console.warn(`⚠️ [Batch ${studentNumber}] Marker detection failed (using fallback):`, markerError.message);
+            // Continue with fallback template coordinates
+          }
 
-          // 4) Crop
+          // 4) Crop (will use template fallback if OpenCV disabled)
           const questionCrops = await cropQuestionRegions(pngBuffer, markers);
           console.log(`✅ [Batch ${studentNumber}] Cropped ${questionCrops.length} question regions`);
           

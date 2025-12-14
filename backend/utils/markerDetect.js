@@ -1,6 +1,7 @@
 import sharp from "sharp";
 
-// Lazy load OpenCV - only load when needed
+// Lazy load OpenCV - only load when needed and enabled
+const ENABLE_OPENCV = process.env.ENABLE_OPENCV === "true";
 let cv = null;
 let opencvLoadAttempted = false;
 
@@ -10,6 +11,12 @@ async function loadOpenCV() {
   }
   
   opencvLoadAttempted = true;
+  
+  // Check if OpenCV is enabled via environment variable
+  if (!ENABLE_OPENCV) {
+    console.warn("⚠️ OpenCV disabled via ENABLE_OPENCV=false. Using fallback methods.");
+    return null;
+  }
   
   try {
     // Only try to load on Windows (opencv4nodejs doesn't work on Linux)

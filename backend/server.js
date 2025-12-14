@@ -5,6 +5,19 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Log environment configuration
+console.log('🔧 Environment Configuration:');
+console.log('   NODE_ENV:', process.env.NODE_ENV || 'not set');
+console.log('   ENABLE_OPENCV:', process.env.ENABLE_OPENCV || 'not set (default: false)');
+console.log('   ENABLE_PDF_POPPLER:', process.env.ENABLE_PDF_POPPLER || 'not set (default: true)');
+console.log('   Platform:', process.platform);
+if (process.env.ENABLE_OPENCV !== 'true') {
+  console.warn('⚠️ OpenCV is DISABLED. Marker detection and perspective transform will use fallback methods.');
+}
+if (process.env.ENABLE_PDF_POPPLER === 'false') {
+  console.warn('⚠️ PDF-Poppler is DISABLED. Using pdftoppm fallback.');
+}
+
 const app = express();
 
 // CORS configuration - Frontend URL'ini allow et

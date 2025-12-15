@@ -33,7 +33,8 @@ frontend/.next/
 frontend/.env.local
 
 # Vercel API folder (artık kullanılmıyor - ayrı deploy)
-api/
+# Note: Only ignore root-level api/ folder, not frontend/lib/api/
+/api/
 
 # Temporary files
 tmp/

@@ -14,25 +14,67 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StudentTable } from "@/components/students/StudentTable";
 import { studentApi, type Student } from "@/lib/api/studentApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
+import { courseApi, type Course } from "@/lib/api/courseApi";
 
 export default function StudentsPage() {
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
   const [selectedClassLevel, setSelectedClassLevel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchAllStudents();
     loadDepartments();
+    loadAllCourses();
   }, []);
 
   useEffect(() => {
+    if (selectedDepartment) {
+      // Find department ID from name
+      const department = departments.find(d => d.name === selectedDepartment);
+      if (department) {
+        loadPrograms(department._id);
+        if (!selectedProgramId) {
+          loadCoursesByDepartment(department.name);
+        }
+      } else {
+        setPrograms([]);
+        setSelectedProgramId("");
+      }
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+      setSelectedCourseId("");
+      loadAllCourses();
+    }
+  }, [selectedDepartment, departments]);
+
+  useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else if (selectedDepartment) {
+      const department = departments.find(d => d.name === selectedDepartment);
+      if (department) {
+        loadCoursesByDepartment(department.name);
+      }
+    } else {
+      loadAllCourses();
+    }
+  }, [selectedProgramId, selectedDepartment, departments]);
+
+  useEffect(() => {
     applyFilters();
-  }, [searchQuery, selectedDepartment, selectedClassLevel, students]);
+  }, [searchQuery, selectedDepartment, selectedProgramId, selectedCourseId, selectedClassLevel, students, courses]);
 
   const loadDepartments = async () => {
     try {
@@ -40,6 +82,76 @@ export default function StudentsPage() {
       setDepartments(data);
     } catch (error: any) {
       console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Students Page] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Students Page] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Students Page] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Students Page] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
+  const loadAllCourses = async () => {
+    try {
+      const data = await courseApi.getAll();
+      setCourses(data);
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  const loadCoursesByDepartment = async (departmentName: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      // Find department by name
+      const department = departments.find(d => d.name === departmentName);
+      if (department) {
+        const deptCourses = allCourses.filter((course: any) => {
+          const deptId = typeof course.department === "object" && course.department !== null
+            ? (course.department as any)._id
+            : course.department;
+          return deptId === department._id;
+        });
+        setCourses(deptCourses);
+        // Reset course selection if selected course is not in new list
+        if (selectedCourseId && !deptCourses.find((c: any) => c._id === selectedCourseId)) {
+          setSelectedCourseId("");
+        }
+      } else {
+        setCourses(allCourses);
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      if (selectedCourseId && !programCourses.find((c: any) => c._id === selectedCourseId)) {
+        setSelectedCourseId("");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
     }
   };
 
@@ -89,10 +201,11 @@ export default function StudentsPage() {
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedDepartment("");
+    setSelectedProgramId("");
     setSelectedClassLevel("");
   };
 
-  const hasActiveFilters = searchQuery.trim() !== "" || selectedDepartment !== "" || selectedClassLevel !== "";
+  const hasActiveFilters = searchQuery.trim() !== "" || selectedDepartment !== "" || selectedProgramId !== "" || selectedClassLevel !== "";
 
   // Statistics
   const stats = useMemo(() => {
@@ -183,11 +296,11 @@ export default function StudentsPage() {
           <CardHeader>
             <CardTitle>Filtreler ve Arama</CardTitle>
             <CardDescription>
-              Öğrencileri bölüm, sınıf seviyesi veya arama terimi ile filtreleyin
+              Öğrencileri bölüm, program, ders, sınıf seviyesi veya arama terimi ile filtreleyin
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Department Filter */}
               <div className="space-y-2">
                 <Label htmlFor="department-filter" className="text-sm font-medium">
@@ -203,6 +316,54 @@ export default function StudentsPage() {
                   {departments.map((dept) => (
                     <option key={dept._id} value={dept.name}>
                       {dept.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Program Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="program-filter" className="text-sm font-medium">
+                  Program
+                </Label>
+                <Select
+                  id="program-filter"
+                  value={selectedProgramId}
+                  onChange={(e) => setSelectedProgramId(e.target.value)}
+                  disabled={!selectedDepartment || loadingPrograms}
+                  className="h-10 text-sm"
+                >
+                  <option value="">
+                    {!selectedDepartment 
+                      ? "Önce bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Tüm Programlar"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Course Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="course-filter" className="text-sm font-medium">
+                  Ders
+                </Label>
+                <Select
+                  id="course-filter"
+                  value={selectedCourseId}
+                  onChange={(e) => setSelectedCourseId(e.target.value)}
+                  disabled={!selectedDepartment && departments.length > 0}
+                  className="h-10 text-sm"
+                >
+                  <option value="">Tüm Dersler</option>
+                  {courses.map((course) => (
+                    <option key={course._id} value={course._id}>
+                      {course.code} - {course.name}
                     </option>
                   ))}
                 </Select>
@@ -253,6 +414,28 @@ export default function StudentsPage() {
                     Bölüm: {selectedDepartment}
                     <button
                       onClick={() => setSelectedDepartment("")}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {selectedProgramId && (
+                  <Badge variant="secondary" className="text-xs">
+                    Program: {programs.find(p => p._id === selectedProgramId)?.name || selectedProgramId}
+                    <button
+                      onClick={() => setSelectedProgramId("")}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {selectedCourseId && (
+                  <Badge variant="secondary" className="text-xs">
+                    Ders: {courses.find(c => c._id === selectedCourseId)?.code || selectedCourseId}
+                    <button
+                      onClick={() => setSelectedCourseId("")}
                       className="ml-2 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
@@ -329,7 +512,7 @@ export default function StudentsPage() {
                 </p>
               </div>
             ) : (
-              <StudentTable students={filteredStudents} onDelete={fetchAllStudents} />
+              <StudentTable students={filteredStudents} courses={courses} onDelete={fetchAllStudents} />
             )}
           </CardContent>
         </Card>

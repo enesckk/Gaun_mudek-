@@ -23,8 +23,8 @@ export default function NewStudentPage() {
 
         {/* Form Card */}
         <Card className="border-2 border-slate-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-            <CardTitle className="text-xl text-slate-900">Öğrenci Bilgileri</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="text-xl text-slate-900 dark:text-foreground">Öğrenci Bilgileri</CardTitle>
             <CardDescription className="text-sm">
               Öğrenci bilgilerini eksiksiz doldurun. Öğrenci numarası benzersiz olmalıdır.
             </CardDescription>

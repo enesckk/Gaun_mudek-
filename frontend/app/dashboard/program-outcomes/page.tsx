@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 import { programOutcomeApi, type ProgramOutcome } from "@/lib/api/programOutcomeApi";
 import { ProgramOutcomeTable } from "@/components/programOutcomes/ProgramOutcomeTable";
 import { learningOutcomeApi } from "@/lib/api/learningOutcomeApi";
@@ -18,7 +19,10 @@ import { learningOutcomeApi } from "@/lib/api/learningOutcomeApi";
 export default function ProgramOutcomesPage() {
   const router = useRouter();
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [programOutcomes, setProgramOutcomes] = useState<ProgramOutcome[]>([]);
   const [filteredProgramOutcomes, setFilteredProgramOutcomes] = useState<ProgramOutcome[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,12 +40,23 @@ export default function ProgramOutcomesPage() {
 
   useEffect(() => {
     if (selectedDepartmentId) {
+      loadPrograms(selectedDepartmentId);
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+      setProgramOutcomes([]);
+      setFilteredProgramOutcomes([]);
+    }
+  }, [selectedDepartmentId]);
+
+  useEffect(() => {
+    if (selectedProgramId) {
       loadProgramOutcomes();
     } else {
       setProgramOutcomes([]);
       setFilteredProgramOutcomes([]);
     }
-  }, [selectedDepartmentId]);
+  }, [selectedProgramId]);
 
   useEffect(() => {
     if (!searchQuery || searchQuery.trim() === "") {
@@ -68,11 +83,24 @@ export default function ProgramOutcomesPage() {
     }
   };
 
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      const data = await programApi.getAll(deptId);
+      setPrograms(data || []);
+    } catch (error: any) {
+      console.error("Programlar yüklenemedi:", error);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
   const loadProgramOutcomes = async () => {
-    if (!selectedDepartmentId) return;
+    if (!selectedProgramId) return;
     try {
       setLoadingPOs(true);
-      const data = await programOutcomeApi.getByDepartment(selectedDepartmentId);
+      const data = await programOutcomeApi.getByProgram(selectedProgramId);
       setProgramOutcomes(data || []);
       setFilteredProgramOutcomes(data || []);
       await calculateLearningOutcomeCounts(data || []);
@@ -95,14 +123,17 @@ export default function ProgramOutcomesPage() {
         counts[po.code] = 0;
       });
       
-      // Get all courses for the selected department
+      // Get all courses for the selected program
       const { courseApi } = await import("@/lib/api/courseApi");
       const allCourses = await courseApi.getAll();
-      const deptCourses = allCourses.filter((c: any) => 
-        c.department?._id === selectedDepartmentId || c.department === selectedDepartmentId
-      );
+      const programCourses = allCourses.filter((c: any) => {
+        const progId = typeof c.program === "object" && c.program !== null
+          ? (c.program as any)._id
+          : c.program;
+        return progId === selectedProgramId;
+      });
 
-      for (const course of deptCourses) {
+      for (const course of programCourses) {
         try {
           const outcomes = await learningOutcomeApi.getByCourse(course._id);
           for (const outcome of outcomes) {
@@ -160,8 +191,8 @@ export default function ProgramOutcomesPage() {
   };
 
   const handleAddPO = async () => {
-    if (!selectedDepartmentId) {
-      toast.error("Lütfen önce bir bölüm seçin");
+    if (!selectedProgramId) {
+      toast.error("Lütfen önce bir program seçin");
       return;
     }
     if (!newPOCode.trim() || !newPODescription.trim()) {
@@ -171,7 +202,7 @@ export default function ProgramOutcomesPage() {
 
     try {
       setIsLoading(true);
-      await programOutcomeApi.add(selectedDepartmentId, {
+      await programOutcomeApi.addToProgram(selectedProgramId, {
         code: newPOCode.trim(),
         description: newPODescription.trim(),
       });
@@ -191,6 +222,7 @@ export default function ProgramOutcomesPage() {
   };
 
   const selectedDepartment = departments.find((d) => d._id === selectedDepartmentId);
+  const selectedProgram = programs.find((p) => p._id === selectedProgramId);
   const totalPOs = programOutcomes.length;
   const totalMappedLOs = Object.values(learningOutcomeCounts).reduce((sum, count) => sum + count, 0);
 
@@ -200,13 +232,13 @@ export default function ProgramOutcomesPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-muted-foreground text-base">
-            Her bölüm için program çıktılarını tanımlayın, yönetin ve öğrenme çıktıları ile eşleştirin
+            Her program için program çıktılarını tanımlayın, yönetin ve öğrenme çıktıları ile eşleştirin
           </p>
         </div>
       </div>
 
-      {/* Stats Cards - Show when department is selected */}
-      {selectedDepartmentId && (
+      {/* Stats Cards - Show when program is selected */}
+      {selectedProgramId && (
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -236,48 +268,80 @@ export default function ProgramOutcomesPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Bölüm</CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Program</CardTitle>
+              <GraduationCap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{selectedDepartment?.name || "-"}</div>
+              <div className="text-2xl font-bold">{selectedProgram?.name || "-"}</div>
               <p className="text-xs text-muted-foreground">
-                Seçili bölüm
+                Seçili program
               </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Department Selection */}
+      {/* Department and Program Selection */}
       <Card className="border-2">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-[#0a294e]" />
-            <CardTitle>Bölüm Seç</CardTitle>
+            <CardTitle>Bölüm ve Program Seç</CardTitle>
           </div>
           <CardDescription>
-            Program çıktılarını yönetmek istediğiniz bölümü seçin
+            Program çıktılarını yönetmek istediğiniz bölüm ve programı seçin
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="department-select" className="text-sm font-medium">
-              Bölüm <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              id="department-select"
-              value={selectedDepartmentId}
-              onChange={(e) => setSelectedDepartmentId(e.target.value)}
-              className="h-10 text-sm"
-            >
-              <option value="">Bölüm Seçin</option>
-              {departments.map((dept) => (
-                <option key={dept._id} value={dept._id}>
-                  {dept.name}
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="department-select" className="text-sm font-medium">
+                Bölüm <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="department-select"
+                value={selectedDepartmentId}
+                onChange={(e) => {
+                  setSelectedDepartmentId(e.target.value);
+                  setSelectedProgramId("");
+                  setProgramOutcomes([]);
+                  setFilteredProgramOutcomes([]);
+                }}
+                className="h-10 text-sm"
+              >
+                <option value="">Bölüm Seçin</option>
+                {departments.map((dept) => (
+                  <option key={dept._id} value={dept._id}>
+                    {dept.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="program-select" className="text-sm font-medium">
+                Program <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="program-select"
+                value={selectedProgramId}
+                onChange={(e) => setSelectedProgramId(e.target.value)}
+                disabled={!selectedDepartmentId || loadingPrograms}
+                className="h-10 text-sm"
+              >
+                <option value="">
+                  {!selectedDepartmentId 
+                    ? "Önce bölüm seçin" 
+                    : loadingPrograms
+                    ? "Yükleniyor..."
+                    : "Program Seçin"}
                 </option>
-              ))}
-            </Select>
+                {programs.map((prog) => (
+                  <option key={prog._id} value={prog._id}>
+                    {prog.name} {prog.code ? `(${prog.code})` : ""}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -293,7 +357,7 @@ export default function ProgramOutcomesPage() {
               Program Çıktıları Yönetimi
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
-              Program çıktılarını görüntülemek ve yönetmek için lütfen yukarıdan bir bölüm seçin.
+              Program çıktılarını görüntülemek ve yönetmek için lütfen yukarıdan bir bölüm ve program seçin.
             </p>
             <div className="flex items-start gap-2 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md">
               <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -386,7 +450,7 @@ export default function ProgramOutcomesPage() {
                     )}
                   </div>
                   <CardDescription>
-                    {selectedDepartment?.name} bölümü için tanımlı program çıktıları. Her PÇ kodunun yanında kaç öğrenme çıktısına eşlendiği gösterilmektedir.
+                    {selectedProgram?.name} programı için tanımlı program çıktıları. Her PÇ kodunun yanında kaç öğrenme çıktısına eşlendiği gösterilmektedir.
                   </CardDescription>
                 </div>
               </div>
@@ -411,7 +475,7 @@ export default function ProgramOutcomesPage() {
                 <ProgramOutcomeTable
                   programOutcomes={filteredProgramOutcomes}
                   learningOutcomeCounts={learningOutcomeCounts}
-                  departmentId={selectedDepartmentId}
+                  programId={selectedProgramId}
                   onDelete={handleDeleteSuccess}
                 />
               )}

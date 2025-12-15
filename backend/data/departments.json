@@ -1,12 +1,173 @@
 [
-  { "code": "ELEK", "name": "Elektrik" },
-  { "code": "EHAB", "name": "Elektronik Haberleşme Teknolojisi" },
-  { "code": "GIDA", "name": "Gıda İşleme Teknolojisi" },
-  { "code": "MAKINE", "name": "Makine ve Metal Teknolojileri" },
-  { "code": "IKLIM", "name": "İklimlendirme ve Soğutma Teknolojisi" },
-  { "code": "MOBILYA", "name": "Mobilya ve Dekorasyon" },
-  { "code": "HALICILIK", "name": "Halıcılık ve Kilimcilik" },
-  { "code": "ELSAN", "name": "El Sanatları" },
-  { "code": "KIMYA", "name": "Kimya ve Kimyasal İşleme Teknolojisi" }
+  {
+    "code": "ELSAN",
+    "name": "EL SANATLARI",
+    "nameEn": "HANDICRAFTS",
+    "programs": [
+      {
+        "code": "HALICILIK",
+        "name": "HALICILIK VE KİLİMCİLİK",
+        "nameEn": "Carpet and Rug Weaving"
+      },
+      {
+        "code": "MIMARI",
+        "name": "MİMARİ DEKORATİF SANATLAR",
+        "nameEn": "Architectural Decorative Arts"
+      },
+      {
+        "code": "KUYUMCULUK",
+        "name": "KUYUMCULUK VE TAKI TASARIMI",
+        "nameEn": "Jewelry and Accessory Design"
+      }
+    ]
+  },
+  {
+    "code": "MAKINE",
+    "name": "MAKİNA VE METAL TEKNOLOJİLERİ",
+    "nameEn": "MACHINERY AND METAL TECHNOLOGIES",
+    "programs": [
+      {
+        "code": "TEKSTIL_HALI",
+        "name": "TEKSTİL VE HALI MAKİNELERİ",
+        "nameEn": "Textile and Carpet Machinery"
+      },
+      {
+        "code": "MAKINE",
+        "name": "MAKİNE",
+        "nameEn": "Machinery"
+      },
+      {
+        "code": "IMALAT",
+        "name": "İMALAT YÜRÜTME SİS. OPERATÖRLÜĞÜ",
+        "nameEn": "Manufacturing Execution System Operator"
+      }
+    ]
+  },
+  {
+    "code": "GIDA",
+    "name": "GIDA İŞLEME BÖLÜMÜ",
+    "nameEn": "FOOD PROCESSING DEPARTMENT",
+    "programs": [
+      {
+        "code": "UN",
+        "name": "UN VE UNLU MAMÜLLER TEKNOLOJİSİ",
+        "nameEn": "Flour and Flour Products Technology"
+      },
+      {
+        "code": "GIDA_TEK",
+        "name": "GIDA TEKNOLOJİSİ",
+        "nameEn": "Food Technology"
+      },
+      {
+        "code": "GIDA_KALITE",
+        "name": "GIDA KALİTE KONTROLÜ VE ANALİZİ",
+        "nameEn": "Food Quality Control and Analysis"
+      }
+    ]
+  },
+  {
+    "code": "TEKSTIL",
+    "name": "TEKSTİL, GİYİM, AYAKKABI VE DERİ",
+    "nameEn": "TEXTILE, CLOTHING, FOOTWEAR AND LEATHER",
+    "programs": [
+      {
+        "code": "AYAKKABI",
+        "name": "AYAKKABI TASARIM VE ÜRETİM",
+        "nameEn": "Footwear Design and Production"
+      },
+      {
+        "code": "GIYIM",
+        "name": "GİYİM ÜRETİM TEKNOLOJİSİ",
+        "nameEn": "Apparel Production Technology"
+      },
+      {
+        "code": "TEKSTIL_TEK",
+        "name": "TEKSTİL TEKNOLOJİSİ",
+        "nameEn": "Textile Technology"
+      }
+    ]
+  },
+  {
+    "code": "KIMYA",
+    "name": "KİMYA VE KİMYASAL İŞLEME TEKNOLOJİSİ",
+    "nameEn": "CHEMISTRY AND CHEMICAL PROCESSING TECHNOLOGY",
+    "programs": [
+      {
+        "code": "KIMYA_TEK",
+        "name": "KİMYA TEKNOLOJİSİ",
+        "nameEn": "Chemical Technology"
+      }
+    ]
+  },
+  {
+    "code": "ELEKTRONIK",
+    "name": "ELEKTRONİK VE OTOMASYON",
+    "nameEn": "ELECTRONICS AND AUTOMATION",
+    "programs": [
+      {
+        "code": "KONTROL",
+        "name": "KONTROL VE OTOMASYON",
+        "nameEn": "Control and Automation"
+      },
+      {
+        "code": "MEKATRONIK",
+        "name": "MEKATRONİK",
+        "nameEn": "Mechatronics"
+      },
+      {
+        "code": "RADYO_TV",
+        "name": "RADYO VE TELEVİZYON TEKNOLOJİSİ",
+        "nameEn": "Radio and Television Technology"
+      },
+      {
+        "code": "ELEKTRONIK_HAB",
+        "name": "ELEKTRONİK HABERLEŞME",
+        "nameEn": "Electronic Communication"
+      },
+      {
+        "code": "ELEKTRONIK_TEK",
+        "name": "ELEKTRONİK TEKNOLOJİSİ",
+        "nameEn": "Electronic Technology"
+      },
+      {
+        "code": "BIYOMEDIKAL",
+        "name": "BİYOMEDİKAL CİHAZ TEKNOLOJİSİ",
+        "nameEn": "Biomedical Device Technology"
+      }
+    ]
+  },
+  {
+    "code": "ELEKTRIK",
+    "name": "ELEKTRİK VE ENERJİ",
+    "nameEn": "ELECTRICITY AND ENERGY",
+    "programs": [
+      {
+        "code": "DOGALGAZ",
+        "name": "DOĞALGAZ VE TESİSAT TEKNOLOJİSİ",
+        "nameEn": "Natural Gas and Installation Technology"
+      },
+      {
+        "code": "ELEKTRIK_TEK",
+        "name": "ELEKTRİK",
+        "nameEn": "Electricity"
+      },
+      {
+        "code": "IKLIM",
+        "name": "İKLİMLENDİRME VE SOĞUTMA TEKNOLOJİSİ",
+        "nameEn": "Air Conditioning and Refrigeration Technology"
+      }
+    ]
+  },
+  {
+    "code": "MOTORLU",
+    "name": "MOTORLU ARAÇLAR VE ULAŞTIRMA TEKNOLOJİSİ",
+    "nameEn": "MOTOR VEHICLES AND TRANSPORTATION TECHNOLOGY",
+    "programs": [
+      {
+        "code": "OTOMOTIV",
+        "name": "OTOMOTİV TEKNOLOJİSİ",
+        "nameEn": "Automotive Technology"
+      }
+    ]
+  }
 ]
-

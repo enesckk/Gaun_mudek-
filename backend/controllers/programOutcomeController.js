@@ -1,6 +1,33 @@
 import Department from "../models/Department.js";
+import Program from "../models/Program.js";
 
-// Get all program outcomes for a department
+// Get all program outcomes for a program
+export const getProgramOutcomesByProgram = async (req, res) => {
+  try {
+    const { programId } = req.params;
+
+    const program = await Program.findById(programId);
+    if (!program) {
+      return res.status(404).json({
+        success: false,
+        message: "Program bulunamadı.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: program.programOutcomes || [],
+    });
+  } catch (error) {
+    console.error("Error fetching program outcomes:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Program çıktıları getirilirken bir hata oluştu.",
+    });
+  }
+};
+
+// Get all program outcomes for a department (legacy - aggregates from all programs)
 export const getProgramOutcomesByDepartment = async (req, res) => {
   try {
     const { departmentId } = req.params;
@@ -13,9 +40,37 @@ export const getProgramOutcomesByDepartment = async (req, res) => {
       });
     }
 
+    // Get all programs for this department
+    const programs = await Program.find({ department: departmentId });
+    
+    // Aggregate program outcomes from all programs
+    const allProgramOutcomes = [];
+    const seenCodes = new Set();
+    
+    for (const program of programs) {
+      if (program.programOutcomes && Array.isArray(program.programOutcomes)) {
+        for (const po of program.programOutcomes) {
+          if (!seenCodes.has(po.code)) {
+            allProgramOutcomes.push(po);
+            seenCodes.add(po.code);
+          }
+        }
+      }
+    }
+
+    // Also include legacy department-level program outcomes for backward compatibility
+    if (department.programOutcomes && Array.isArray(department.programOutcomes)) {
+      for (const po of department.programOutcomes) {
+        if (!seenCodes.has(po.code)) {
+          allProgramOutcomes.push(po);
+          seenCodes.add(po.code);
+        }
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      data: department.programOutcomes || [],
+      data: allProgramOutcomes,
     });
   } catch (error) {
     console.error("Error fetching program outcomes:", error);
@@ -26,8 +81,64 @@ export const getProgramOutcomesByDepartment = async (req, res) => {
   }
 };
 
-// Add a program outcome to a department
+// Add a program outcome to a program
 export const addProgramOutcome = async (req, res) => {
+  try {
+    const { programId } = req.params;
+    const { code, description } = req.body;
+
+    if (!code || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "PÇ kodu ve açıklama gereklidir.",
+      });
+    }
+
+    const program = await Program.findById(programId);
+    if (!program) {
+      return res.status(404).json({
+        success: false,
+        message: "Program bulunamadı.",
+      });
+    }
+
+    // Check if code already exists in this program
+    const existingPO = program.programOutcomes?.find((po) => po.code === code.trim());
+    if (existingPO) {
+      return res.status(400).json({
+        success: false,
+        message: `"${code}" kodu bu program için zaten mevcut.`,
+      });
+    }
+
+    // Add new program outcome
+    if (!program.programOutcomes) {
+      program.programOutcomes = [];
+    }
+
+    program.programOutcomes.push({
+      code: code.trim(),
+      description: description.trim(),
+    });
+
+    await program.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Program çıktısı başarıyla eklendi.",
+      data: program.programOutcomes,
+    });
+  } catch (error) {
+    console.error("Error adding program outcome:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Program çıktısı eklenirken bir hata oluştu.",
+    });
+  }
+};
+
+// Legacy: Add program outcome to department (for backward compatibility)
+export const addProgramOutcomeToDepartment = async (req, res) => {
   try {
     const { departmentId } = req.params;
     const { code, description } = req.body;
@@ -82,10 +193,10 @@ export const addProgramOutcome = async (req, res) => {
   }
 };
 
-// Update program outcomes for a department (replace entire array)
+// Update program outcomes for a program (replace entire array)
 export const updateProgramOutcomes = async (req, res) => {
   try {
-    const { departmentId } = req.params;
+    const { programId } = req.params;
     const { programOutcomes } = req.body;
 
     if (!Array.isArray(programOutcomes)) {
@@ -95,11 +206,11 @@ export const updateProgramOutcomes = async (req, res) => {
       });
     }
 
-    const department = await Department.findById(departmentId);
-    if (!department) {
+    const program = await Program.findById(programId);
+    if (!program) {
       return res.status(404).json({
         success: false,
-        message: "Bölüm bulunamadı.",
+        message: "Program bulunamadı.",
       });
     }
 
@@ -124,17 +235,17 @@ export const updateProgramOutcomes = async (req, res) => {
     }
 
     // Update program outcomes
-    department.programOutcomes = programOutcomes.map((po) => ({
+    program.programOutcomes = programOutcomes.map((po) => ({
       code: po.code.trim(),
       description: po.description.trim(),
     }));
 
-    await department.save();
+    await program.save();
 
     return res.status(200).json({
       success: true,
       message: "Program çıktıları başarıyla güncellendi.",
-      data: department.programOutcomes,
+      data: program.programOutcomes,
     });
   } catch (error) {
     console.error("Error updating program outcomes:", error);
@@ -145,10 +256,10 @@ export const updateProgramOutcomes = async (req, res) => {
   }
 };
 
-// Delete a specific program outcome from a department
+// Delete a specific program outcome from a program
 export const deleteProgramOutcome = async (req, res) => {
   try {
-    const { departmentId } = req.params;
+    const { programId } = req.params;
     const { code } = req.body;
 
     if (!code) {
@@ -158,39 +269,39 @@ export const deleteProgramOutcome = async (req, res) => {
       });
     }
 
-    const department = await Department.findById(departmentId);
-    if (!department) {
+    const program = await Program.findById(programId);
+    if (!program) {
       return res.status(404).json({
         success: false,
-        message: "Bölüm bulunamadı.",
+        message: "Program bulunamadı.",
       });
     }
 
-    if (!department.programOutcomes || department.programOutcomes.length === 0) {
+    if (!program.programOutcomes || program.programOutcomes.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Silinecek program çıktısı bulunamadı.",
       });
     }
 
-    const initialLength = department.programOutcomes.length;
-    department.programOutcomes = department.programOutcomes.filter(
+    const initialLength = program.programOutcomes.length;
+    program.programOutcomes = program.programOutcomes.filter(
       (po) => po.code !== code.trim()
     );
 
-    if (department.programOutcomes.length === initialLength) {
+    if (program.programOutcomes.length === initialLength) {
       return res.status(404).json({
         success: false,
         message: `"${code}" kodlu program çıktısı bulunamadı.`,
       });
     }
 
-    await department.save();
+    await program.save();
 
     return res.status(200).json({
       success: true,
       message: "Program çıktısı başarıyla silindi.",
-      data: department.programOutcomes,
+      data: program.programOutcomes,
     });
   } catch (error) {
     console.error("Error deleting program outcome:", error);

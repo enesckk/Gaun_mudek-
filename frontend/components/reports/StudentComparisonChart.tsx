@@ -33,14 +33,14 @@ export function StudentComparisonChart({
 
   if (studentData.length === 0) {
     return (
-      <Card className="border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="text-xl text-slate-900">Öğrenci Karşılaştırması</CardTitle>
+      <Card className="border-2 border-slate-200 dark:border-slate-700">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="text-xl text-slate-900 dark:text-foreground">Öğrenci Karşılaştırması</CardTitle>
           <CardDescription className="text-sm">Öğrenciler için genel ÖÇ başarı oranları</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
-            <Users className="h-12 w-12 mx-auto mb-4 text-slate-400" />
+            <Users className="h-12 w-12 mx-auto mb-4 text-slate-400 dark:text-foreground" />
             <p className="text-lg font-medium">Öğrenci verisi bulunamadı</p>
             <p className="text-sm mt-2">Sınav puanları eklendikten sonra burada görünecektir</p>
           </div>
@@ -50,9 +50,9 @@ export function StudentComparisonChart({
   }
 
   return (
-    <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-        <CardTitle className="text-xl text-slate-900">Öğrenci Karşılaştırması</CardTitle>
+    <Card className="rounded-xl shadow-sm border-2 border-slate-200 dark:border-slate-700">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+        <CardTitle className="text-xl text-slate-900 dark:text-foreground">Öğrenci Karşılaştırması</CardTitle>
         <CardDescription className="text-sm">Öğrenciler için genel ÖÇ başarı oranları</CardDescription>
       </CardHeader>
       <CardContent>
@@ -70,7 +70,7 @@ export function StudentComparisonChart({
               <div key={index} className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{data.studentNumber}</span>
+                    <span className="font-medium text-foreground">{data.studentNumber}</span>
                     <span className="text-muted-foreground text-xs">
                       {data.name}
                     </span>
@@ -78,16 +78,16 @@ export function StudentComparisonChart({
                   <span
                     className={`font-semibold ${
                       data.percentage >= 80
-                        ? "text-green-600"
+                        ? "text-green-600 dark:text-green-400"
                         : data.percentage >= 60
-                        ? "text-yellow-600"
-                        : "text-red-600"
+                        ? "text-yellow-600 dark:text-yellow-400"
+                        : "text-red-600 dark:text-red-400"
                     }`}
                   >
                     {data.percentage.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
+                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-4">
                   <div
                     className={`h-4 rounded-full transition-all ${color}`}
                     style={{ width: `${widthPercentage}%` }}

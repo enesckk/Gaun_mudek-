@@ -38,15 +38,32 @@ export function MudekMatrixView({
   const [loadingPOs, setLoadingPOs] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Get programId from course
+  const programId = typeof (course as any)?.program === "object" && (course as any)?.program !== null
+    ? ((course as any).program as any)._id
+    : (course as any)?.program || null;
+
   useEffect(() => {
     loadProgramOutcomes();
     loadLearningOutcomes();
-  }, [departmentId, course]);
+  }, [departmentId, course, programId]);
 
   const loadProgramOutcomes = async () => {
     try {
       setLoadingPOs(true);
-      const data = await programOutcomeApi.getByDepartment(departmentId);
+      let data: ProgramOutcome[] = [];
+      
+      // Prefer programId over departmentId
+      if (programId) {
+        data = await programOutcomeApi.getByProgram(programId);
+      } else if (departmentId) {
+        // Legacy: fallback to department-based loading
+        data = await programOutcomeApi.getByDepartment(departmentId);
+      } else {
+        setProgramOutcomes([]);
+        return;
+      }
+      
       setProgramOutcomes(data || []);
     } catch (error: any) {
       toast.error("Program çıktıları yüklenemedi");
@@ -172,8 +189,8 @@ export function MudekMatrixView({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl text-[#0a294e] flex items-center gap-2">
-                <Target className="h-6 w-6" />
+              <CardTitle className="text-2xl text-[#0a294e] dark:text-foreground flex items-center gap-2">
+                <Target className="h-6 w-6 text-[#0a294e] dark:text-foreground" />
                 MÜDEK ÖÇ → PÇ Eşleme Matrisi
               </CardTitle>
               <CardDescription className="text-base mt-2">
@@ -189,12 +206,12 @@ export function MudekMatrixView({
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin text-white" />
                     Kaydediliyor...
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="h-4 w-4 mr-2 text-white" />
                     Değişiklikleri Kaydet
                   </>
                 )}
@@ -204,7 +221,7 @@ export function MudekMatrixView({
                 variant="outline"
                 className="h-11 px-5"
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4 mr-2 text-foreground" />
                 PDF İndir
               </Button>
             </div>
@@ -217,32 +234,32 @@ export function MudekMatrixView({
         <Card className="border-2 border-[#0a294e]/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Target className="h-8 w-8 text-[#0a294e]" />
+              <Target className="h-8 w-8 text-[#0a294e] dark:text-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Toplam ÖÇ</p>
-                <p className="text-2xl font-bold text-[#0a294e]">{learningOutcomes.length}</p>
+                <p className="text-2xl font-bold text-[#0a294e] dark:text-foreground">{learningOutcomes.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 border-[#0a294e]/20">
+        <Card className="border-2 border-[#0a294e]/20 dark:border-slate-700">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-[#0a294e]" />
+              <GraduationCap className="h-8 w-8 text-[#0a294e] dark:text-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Toplam PÇ</p>
-                <p className="text-2xl font-bold text-[#0a294e]">{programOutcomes.length}</p>
+                <p className="text-2xl font-bold text-[#0a294e] dark:text-foreground">{programOutcomes.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 border-[#0a294e]/20">
+        <Card className="border-2 border-[#0a294e]/20 dark:border-slate-700">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <Info className="h-8 w-8 text-[#0a294e]" />
+              <Info className="h-8 w-8 text-[#0a294e] dark:text-foreground" />
               <div>
                 <p className="text-sm text-muted-foreground">Ortalama Eşleme/ÖÇ</p>
-                <p className="text-2xl font-bold text-[#0a294e]">{avgMappingsPerLO}</p>
+                <p className="text-2xl font-bold text-[#0a294e] dark:text-foreground">{avgMappingsPerLO}</p>
               </div>
             </div>
           </CardContent>
@@ -255,17 +272,17 @@ export function MudekMatrixView({
           <div className="overflow-x-auto">
             <Table className="border-2">
               <TableHeader>
-                <TableRow className="bg-[#0a294e] hover:bg-[#0a294e]">
-                  <TableHead className="text-white font-bold text-center min-w-[120px] border-r-2 border-white/20">
+                <TableRow className="bg-[#0a294e] dark:bg-slate-800 hover:bg-[#0a294e] dark:hover:bg-slate-800">
+                  <TableHead className="text-white dark:text-foreground font-bold text-center min-w-[120px] border-r-2 border-white/20 dark:border-slate-600">
                     ÖÇ Kodu
                   </TableHead>
-                  <TableHead className="text-white font-bold min-w-[300px] border-r-2 border-white/20">
+                  <TableHead className="text-white dark:text-foreground font-bold min-w-[300px] border-r-2 border-white/20 dark:border-slate-600">
                     ÖÇ Açıklaması
                   </TableHead>
                   {programOutcomes.map((po) => (
                     <TableHead
                       key={po.code}
-                      className="text-white font-bold text-center min-w-[100px] border-r-2 border-white/20 last:border-r-0"
+                      className="text-white dark:text-foreground font-bold text-center min-w-[100px] border-r-2 border-white/20 dark:border-slate-600 last:border-r-0"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <span>{po.code}</span>
@@ -283,22 +300,22 @@ export function MudekMatrixView({
                   return (
                     <TableRow
                       key={loIndex}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                     >
-                      <TableCell className="font-bold text-center bg-gray-100 border-r-2">
-                        <Badge variant="default" className="bg-[#0a294e] text-white">
+                      <TableCell className="font-bold text-center bg-gray-100 dark:bg-slate-700 border-r-2 border-border">
+                        <Badge variant="default" className="bg-[#0a294e] dark:bg-slate-600 text-white dark:text-foreground">
                           {lo.code}
                         </Badge>
                       </TableCell>
-                      <TableCell className="border-r-2">
-                        <p className="text-sm">{lo.description}</p>
+                      <TableCell className="border-r-2 border-border">
+                        <p className="text-sm text-foreground">{lo.description}</p>
                         {selectedPOs.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1">
                             {selectedPOs.map((poCode: string) => (
                               <Badge
                                 key={poCode}
                                 variant="outline"
-                                className="text-xs bg-slate-50 border-slate-300 text-slate-700"
+                                className="text-xs bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-foreground"
                               >
                                 {poCode}
                               </Badge>
@@ -311,7 +328,7 @@ export function MudekMatrixView({
                         return (
                           <TableCell
                             key={po.code}
-                            className="text-center border-r-2 last:border-r-0 cursor-pointer hover:bg-slate-50 transition-colors"
+                            className="text-center border-r-2 border-border last:border-r-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                             onClick={() => toggleMapping(loIndex, po.code)}
                           >
                             <div className="flex items-center justify-center">
@@ -336,7 +353,7 @@ export function MudekMatrixView({
       {/* PÇ Kapsam Analizi */}
       <Card className="border-2 border-[#0a294e]/20">
         <CardHeader>
-          <CardTitle className="text-xl text-[#0a294e]">PÇ Kapsam Analizi</CardTitle>
+          <CardTitle className="text-xl text-[#0a294e] dark:text-foreground">PÇ Kapsam Analizi</CardTitle>
           <CardDescription>
             Her Program Çıktısının kaç Öğrenme Çıktısı tarafından kapsandığını gösterir
           </CardDescription>
@@ -346,19 +363,19 @@ export function MudekMatrixView({
             {coverageByPO.map((coverage) => (
               <div
                 key={coverage.code}
-                className="p-3 border-2 border-slate-200 rounded-lg bg-slate-50"
+                className="p-3 border-2 border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="outline" className="bg-white">
+                  <Badge variant="outline" className="bg-white dark:bg-slate-700 text-foreground">
                     {coverage.code}
                   </Badge>
-                  <span className="text-sm font-semibold text-[#0a294e]">
+                  <span className="text-sm font-semibold text-[#0a294e] dark:text-foreground">
                     {coverage.percentage}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                   <div
-                    className="bg-[#0a294e] h-2 rounded-full transition-all"
+                    className="bg-[#0a294e] dark:bg-primary h-2 rounded-full transition-all"
                     style={{ width: `${coverage.percentage}%` }}
                   />
                 </div>
@@ -372,11 +389,11 @@ export function MudekMatrixView({
       </Card>
 
       {/* Bilgi Notu */}
-      <Card className="border-2 border-[#0a294e]/20 bg-slate-50">
+      <Card className="border-2 border-[#0a294e]/20 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-[#0a294e] mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-slate-700">
+            <Info className="h-5 w-5 text-[#0a294e] dark:text-foreground mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-slate-700 dark:text-foreground">
               <p className="font-semibold mb-1">Kullanım Kılavuzu:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Matris üzerindeki checkbox'lara tıklayarak ÖÇ → PÇ eşlemesi yapabilirsiniz</li>

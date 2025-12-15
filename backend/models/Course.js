@@ -10,6 +10,10 @@ const CourseSchema = new mongoose.Schema(
       ref: "Department",
       required: true,
     },
+    program: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Program",
+    },
     description: String,
 
     learningOutcomes: [

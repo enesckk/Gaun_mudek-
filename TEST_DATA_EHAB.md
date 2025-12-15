@@ -193,3 +193,4 @@ Frontend'de: **Sınavlar** → **Yeni Sınav Ekle**
 3. **Sınav Puanları**: Test için en az bir öğrenciye sınav puanı girin (tek PDF yükleme veya toplu puan girişi)
 
 
+

@@ -19,7 +19,8 @@ export interface LearningOutcome {
 interface OutcomeEditorProps {
   outcomes: LearningOutcome[];
   onChange: (outcomes: LearningOutcome[]) => void;
-  departmentId?: string; // Department ID to fetch PÇ list
+  departmentId?: string; // Department ID (legacy - for backward compatibility)
+  programId?: string; // Program ID (preferred - to fetch PÇ list for the program)
   errors?: Record<string, string>;
   disabled?: boolean;
 }
@@ -28,6 +29,7 @@ export function OutcomeEditor({
   outcomes,
   onChange,
   departmentId,
+  programId,
   errors = {},
   disabled = false,
 }: OutcomeEditorProps) {
@@ -35,20 +37,30 @@ export function OutcomeEditor({
   const [programOutcomes, setProgramOutcomes] = useState<ProgramOutcome[]>([]);
   const [loadingPOs, setLoadingPOs] = useState(false);
 
-  // Load program outcomes when departmentId changes
+  // Load program outcomes when programId or departmentId changes
   useEffect(() => {
-    if (departmentId) {
+    if (programId || departmentId) {
       loadProgramOutcomes();
     } else {
       setProgramOutcomes([]);
     }
-  }, [departmentId]);
+  }, [programId, departmentId]);
 
   const loadProgramOutcomes = async () => {
-    if (!departmentId) return;
     try {
       setLoadingPOs(true);
-      const data = await programOutcomeApi.getByDepartment(departmentId);
+      let data: ProgramOutcome[] = [];
+      
+      // Prefer programId over departmentId
+      if (programId) {
+        data = await programOutcomeApi.getByProgram(programId);
+      } else if (departmentId) {
+        // Legacy: fallback to department-based loading
+        data = await programOutcomeApi.getByDepartment(departmentId);
+      } else {
+        return;
+      }
+      
       setProgramOutcomes(data || []);
       
       // Clean up invalid PÇ references (PÇs that were deleted but still referenced in outcomes)
@@ -223,10 +235,10 @@ export function OutcomeEditor({
                     ) : programOutcomes.length === 0 ? (
                       <div className="mt-1.5 p-2 bg-amber-50 rounded border border-amber-200">
                         <p className="text-xs text-amber-800 mb-1.5">
-                          <strong>Önemli:</strong> Bu bölüm için henüz program çıktısı tanımlanmamış.
+                          <strong>Önemli:</strong> {programId ? "Bu program için" : "Bu bölüm için"} henüz program çıktısı tanımlanmamış.
                         </p>
                         <p className="text-xs text-amber-700 mb-2">
-                          ÖÇ → PÇ eşleştirmesi yapabilmek için önce bu bölüm için program çıktıları eklemeniz gerekmektedir.
+                          ÖÇ → PÇ eşleştirmesi yapabilmek için önce {programId ? "bu program için" : "bu bölüm için"} program çıktıları eklemeniz gerekmektedir.
                         </p>
                         <Button
                           type="button"

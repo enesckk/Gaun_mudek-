@@ -14,6 +14,7 @@ import { ExamTable } from "@/components/exams/ExamTable";
 import { examApi, type Exam } from "@/lib/api/examApi";
 import { courseApi, type Course } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 export default function ExamsPage() {
   const router = useRouter();
@@ -21,8 +22,11 @@ export default function ExamsPage() {
   const [filteredExams, setFilteredExams] = useState<Exam[]>([]);
   const [courses, setCourses] = useState<Record<string, Course>>({});
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [selectedExamType, setSelectedExamType] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -34,15 +38,31 @@ export default function ExamsPage() {
 
   useEffect(() => {
     if (selectedDepartmentId) {
-      loadCoursesByDepartment(selectedDepartmentId);
+      loadPrograms(selectedDepartmentId);
+      if (!selectedProgramId) {
+        loadCoursesByDepartment(selectedDepartmentId);
+      }
     } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+      setSelectedCourseId("");
       loadAllCourses();
     }
   }, [selectedDepartmentId]);
 
   useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else if (selectedDepartmentId) {
+      loadCoursesByDepartment(selectedDepartmentId);
+    } else {
+      loadAllCourses();
+    }
+  }, [selectedProgramId]);
+
+  useEffect(() => {
     applyFilters();
-  }, [searchQuery, selectedDepartmentId, selectedCourseId, selectedExamType, exams, courses]);
+  }, [searchQuery, selectedDepartmentId, selectedProgramId, selectedCourseId, selectedExamType, exams, courses]);
 
   const loadDepartments = async () => {
     try {
@@ -50,6 +70,23 @@ export default function ExamsPage() {
       setDepartments(data);
     } catch (error: any) {
       console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Exams Page] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Exams Page] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Exams Page] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Exams Page] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
     }
   };
 
@@ -69,9 +106,12 @@ export default function ExamsPage() {
   const loadCoursesByDepartment = async (departmentId: string) => {
     try {
       const allCourses = await courseApi.getAll();
-      const deptCourses = allCourses.filter((course: any) => 
-        course.department?._id === departmentId || course.department === departmentId
-      );
+      const deptCourses = allCourses.filter((course: any) => {
+        const deptId = typeof course.department === "object" && course.department !== null
+          ? (course.department as any)._id
+          : course.department;
+        return deptId === departmentId;
+      });
       const coursesMap: Record<string, Course> = {};
       deptCourses.forEach((course) => {
         coursesMap[course._id] = course;
@@ -79,6 +119,29 @@ export default function ExamsPage() {
       setCourses(coursesMap);
       // Reset course selection if selected course is not in new list
       if (selectedCourseId && !deptCourses.find((c: any) => c._id === selectedCourseId)) {
+        setSelectedCourseId("");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      const coursesMap: Record<string, Course> = {};
+      programCourses.forEach((course) => {
+        coursesMap[course._id] = course;
+      });
+      setCourses(coursesMap);
+      // Reset course selection if selected course is not in new list
+      if (selectedCourseId && !programCourses.find((c: any) => c._id === selectedCourseId)) {
         setSelectedCourseId("");
       }
     } catch (error: any) {
@@ -103,6 +166,23 @@ export default function ExamsPage() {
             ? course.department._id
             : course.department;
         return deptId === selectedDepartmentId;
+      });
+    }
+
+    // Filter by program
+    if (selectedProgramId) {
+      filtered = filtered.filter((exam) => {
+        const courseId =
+          typeof exam.courseId === "object" && exam.courseId !== null
+            ? exam.courseId._id
+            : exam.courseId;
+        const course = courseId ? courses[courseId] : undefined;
+        if (!course) return false;
+        const progId =
+          typeof course.program === "object" && course.program !== null
+            ? (course.program as any)._id
+            : course.program;
+        return progId === selectedProgramId;
       });
     }
 
@@ -145,12 +225,13 @@ export default function ExamsPage() {
 
   const clearFilters = () => {
     setSelectedDepartmentId("");
+    setSelectedProgramId("");
     setSelectedCourseId("");
     setSelectedExamType("");
     setSearchQuery("");
   };
 
-  const hasActiveFilters = selectedDepartmentId || selectedCourseId || selectedExamType || searchQuery.trim() !== "";
+  const hasActiveFilters = selectedDepartmentId || selectedProgramId || selectedCourseId || selectedExamType || searchQuery.trim() !== "";
 
   const fetchAllExams = async () => {
     try {
@@ -267,11 +348,11 @@ export default function ExamsPage() {
             )}
           </div>
           <CardDescription>
-            Sınavları bölüm, ders, sınav tipi veya arama ile filtreleyin
+            Sınavları bölüm, program, ders, sınav tipi veya arama ile filtreleyin
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Department Filter */}
             <div className="space-y-2">
               <Label htmlFor="department-filter" className="text-sm font-medium">
@@ -287,6 +368,33 @@ export default function ExamsPage() {
                 {departments.map((dept) => (
                   <option key={dept._id} value={dept._id}>
                     {dept.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            {/* Program Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="program-filter" className="text-sm font-medium">
+                Program
+              </Label>
+              <Select
+                id="program-filter"
+                value={selectedProgramId}
+                onChange={(e) => setSelectedProgramId(e.target.value)}
+                disabled={!selectedDepartmentId || loadingPrograms}
+                className="h-10 text-sm"
+              >
+                <option value="">
+                  {!selectedDepartmentId 
+                    ? "Önce bölüm seçin" 
+                    : loadingPrograms
+                    ? "Yükleniyor..."
+                    : "Tüm Programlar"}
+                </option>
+                {programs.map((prog) => (
+                  <option key={prog._id} value={prog._id}>
+                    {prog.name} {prog.code ? `(${prog.code})` : ""}
                   </option>
                 ))}
               </Select>

@@ -26,7 +26,7 @@ const programOutcomeSchema = z.object({
 type ProgramOutcomeFormData = z.infer<typeof programOutcomeSchema>;
 
 interface EditProgramOutcomeDialogProps {
-  departmentId: string;
+  programId: string;
   programOutcome: ProgramOutcome;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -34,7 +34,7 @@ interface EditProgramOutcomeDialogProps {
 }
 
 export function EditProgramOutcomeDialog({
-  departmentId,
+  programId,
   programOutcome,
   open,
   onOpenChange,
@@ -61,15 +61,15 @@ export function EditProgramOutcomeDialog({
   }, [open, programOutcome, form]);
 
   const onSubmit = async (data: ProgramOutcomeFormData) => {
-    if (!departmentId) {
-      toast.error("Bölüm bilgisi bulunamadı");
+    if (!programId) {
+      toast.error("Program bilgisi bulunamadı");
       return;
     }
 
     setIsSubmitting(true);
     try {
       // Get current program outcomes
-      const currentPOs = await programOutcomeApi.getByDepartment(departmentId);
+      const currentPOs = await programOutcomeApi.getByProgram(programId);
       
       // Update the specific PO
       const updatedPOs = currentPOs.map((po) => {
@@ -83,7 +83,7 @@ export function EditProgramOutcomeDialog({
       });
 
       // Update all program outcomes
-      await programOutcomeApi.update(departmentId, updatedPOs);
+      await programOutcomeApi.updateProgram(programId, updatedPOs);
       toast.success("Program çıktısı başarıyla güncellendi");
       onOpenChange(false);
       onSuccess?.();

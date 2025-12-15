@@ -1,11 +1,14 @@
 import apiClient from "./apiClient";
 
+import { Program } from "./programApi";
+
 export interface Course {
   _id: string;
   name: string;
   code: string;
   description?: string;
   department?: string | { _id: string; name: string; code?: string };
+  program?: string | Program | null;
   semester?: string;
   learningOutcomes?: Array<{ 
     code: string; 
@@ -54,6 +57,7 @@ export interface CreateCourseDto {
   code: string;
   description?: string;
   departmentId: string;
+  programId?: string;
   semester?: string;
   learningOutcomes?: LearningOutcomeInput[];
   midtermExam?: ExamSettingsInput;
@@ -66,6 +70,7 @@ export interface UpdateCourseDto {
   code?: string;
   description?: string;
   departmentId?: string;
+  programId?: string | null;
   semester?: string;
   learningOutcomes?: LearningOutcomeInput[];
   midtermExam?: ExamSettingsInput;

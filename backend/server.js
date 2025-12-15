@@ -141,6 +141,7 @@ app.get("/api", (req, res) => {
 // Import all routes
 import courseRoutes from "./routes/courseRoutes.js";
 import departmentRoutes from "./routes/departmentRoutes.js";
+import programRoutes from "./routes/programRoutes.js";
 import programOutcomeRoutes from "./routes/programOutcomeRoutes.js";
 import examRoutes from "./routes/examRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js";
@@ -149,10 +150,13 @@ import studentRoutes from "./routes/studentRoutes.js";
 import scoreRoutes from "./routes/scoreRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import assessmentRoutes from "./routes/assessmentRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Mount all routes
 app.use("/api/courses", courseRoutes);
 app.use("/api/departments", departmentRoutes);
+app.use("/api/programs", programRoutes);
 app.use("/api/program-outcomes", programOutcomeRoutes);
 app.use("/api/exams", examRoutes);
 app.use("/api/questions", questionRoutes);
@@ -161,6 +165,8 @@ app.use("/api/students", studentRoutes);
 app.use("/api/scores", scoreRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/assessments", assessmentRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Error handling middleware - must be after all routes to catch errors
 // This ensures CORS headers are sent even when errors occur

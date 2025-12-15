@@ -19,14 +19,14 @@ import { useState } from "react";
 interface ProgramOutcomeTableProps {
   programOutcomes: ProgramOutcome[];
   learningOutcomeCounts: Record<string, number>;
-  departmentId?: string;
+  programId?: string;
   onDelete?: () => void;
 }
 
 export function ProgramOutcomeTable({
   programOutcomes,
   learningOutcomeCounts,
-  departmentId,
+  programId,
   onDelete,
 }: ProgramOutcomeTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -120,17 +120,17 @@ export function ProgramOutcomeTable({
         </Table>
       </div>
 
-      {selectedProgramOutcome && departmentId && (
+      {selectedProgramOutcome && programId && (
         <>
           <EditProgramOutcomeDialog
-            departmentId={departmentId}
+            programId={programId}
             programOutcome={selectedProgramOutcome}
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
             onSuccess={handleEditSuccess}
           />
           <DeleteProgramOutcomeDialog
-            departmentId={departmentId}
+            programId={programId}
             programOutcomeCode={selectedProgramOutcome.code}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}

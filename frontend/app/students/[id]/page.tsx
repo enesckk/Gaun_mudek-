@@ -229,9 +229,9 @@ function StudentDetailContent() {
 
       {/* Enrolled Courses Card */}
       <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="text-xl text-slate-900 flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="text-xl text-slate-900 dark:text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-foreground" />
             Kayıtlı Olduğu Dersler
           </CardTitle>
           <CardDescription className="text-sm">
@@ -312,12 +312,12 @@ function StudentDetailContent() {
 
       {/* Exam Score Table */}
       <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="text-xl text-slate-900">Sınav Sonuçları</CardTitle>
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="text-xl text-slate-900 dark:text-foreground">Sınav Sonuçları</CardTitle>
           <CardDescription className="text-sm">
             Bu öğrencinin tüm sınav sonuçları, sınavlara göre gruplandırılmış olarak gösterilmektedir.
             {examResults.length > 0 && (
-              <span className="ml-2 font-medium text-slate-700">
+              <span className="ml-2 font-medium text-slate-700 dark:text-foreground">
                 ({examResults.length} sınav sonucu bulundu)
               </span>
             )}

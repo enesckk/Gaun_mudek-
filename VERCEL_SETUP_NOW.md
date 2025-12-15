@@ -80,3 +80,4 @@ Build süresi **30-60 saniye** arası olmalı (137ms değil!).
 - `vercel.json` sadece özel durumlar için gerekir
 
 
+

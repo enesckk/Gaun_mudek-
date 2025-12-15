@@ -14,6 +14,12 @@ const DepartmentSchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
+    programs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Program",
+      },
+    ],
     programOutcomes: [
       {
         code: {

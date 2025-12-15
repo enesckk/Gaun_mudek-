@@ -24,14 +24,18 @@ import {
 import { courseApi, type Course } from "@/lib/api/courseApi";
 import { examApi } from "@/lib/api/examApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 export default function DashboardCoursesPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -42,12 +46,38 @@ export default function DashboardCoursesPage() {
     loadDepartments();
   }, []);
 
+  useEffect(() => {
+    if (selectedDepartmentId) {
+      loadPrograms(selectedDepartmentId);
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+    }
+  }, [selectedDepartmentId]);
+
   const loadDepartments = async () => {
     try {
       const data = await departmentApi.getAll();
       setDepartments(data);
     } catch (error: any) {
       console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Courses Page] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Courses Page] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Courses Page] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Courses Page] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
     }
   };
 
@@ -170,6 +200,17 @@ export default function DashboardCoursesPage() {
       });
     }
 
+    // Filter by program
+    if (selectedProgramId) {
+      filtered = filtered.filter((course) => {
+        const progId =
+          typeof course.program === "object" && course.program !== null
+            ? (course.program as any)._id
+            : course.program;
+        return progId === selectedProgramId;
+      });
+    }
+
     // Filter by search query
     if (searchQuery && searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase().trim();
@@ -186,10 +227,11 @@ export default function DashboardCoursesPage() {
 
   const clearFilters = () => {
     setSelectedDepartmentId("");
+    setSelectedProgramId("");
     setSearchQuery("");
   };
 
-  const hasActiveFilters = selectedDepartmentId || searchQuery.trim() !== "";
+  const hasActiveFilters = selectedDepartmentId || selectedProgramId || searchQuery.trim() !== "";
 
   const handleDeleteClick = (course: Course) => {
     setSelectedCourse(course);
@@ -264,11 +306,11 @@ export default function DashboardCoursesPage() {
               )}
             </div>
             <CardDescription>
-              Dersleri bölüm veya arama ile filtreleyin
+              Dersleri bölüm, program veya arama ile filtreleyin
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Department Filter */}
               <div className="space-y-2">
                 <Label htmlFor="department-filter" className="text-sm font-medium">
@@ -284,6 +326,33 @@ export default function DashboardCoursesPage() {
                   {departments.map((dept) => (
                     <option key={dept._id} value={dept._id}>
                       {dept.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Program Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="program-filter" className="text-sm font-medium">
+                  Program
+                </Label>
+                <Select
+                  id="program-filter"
+                  value={selectedProgramId}
+                  onChange={(e) => setSelectedProgramId(e.target.value)}
+                  disabled={!selectedDepartmentId || loadingPrograms}
+                  className="h-10 text-sm"
+                >
+                  <option value="">
+                    {!selectedDepartmentId 
+                      ? "Önce bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Tüm Programlar"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
                     </option>
                   ))}
                 </Select>
@@ -316,6 +385,17 @@ export default function DashboardCoursesPage() {
                     Bölüm: {departments.find(d => d._id === selectedDepartmentId)?.name}
                     <button
                       onClick={() => setSelectedDepartmentId("")}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {selectedProgramId && (
+                  <Badge variant="secondary" className="text-xs">
+                    Program: {programs.find(p => p._id === selectedProgramId)?.name || selectedProgramId}
+                    <button
+                      onClick={() => setSelectedProgramId("")}
                       className="ml-2 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />

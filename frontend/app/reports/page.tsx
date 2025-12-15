@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { courseApi, type Course } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 import { examApi } from "@/lib/api/examApi";
 
 export default function ReportsPage() {
@@ -18,8 +19,12 @@ export default function ReportsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -28,8 +33,29 @@ export default function ReportsPage() {
   }, []);
 
   useEffect(() => {
+    if (selectedDepartmentId) {
+      loadPrograms(selectedDepartmentId);
+      if (!selectedProgramId) {
+        loadCoursesByDepartment(selectedDepartmentId);
+      }
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+      setSelectedCourseId("");
+    }
+  }, [selectedDepartmentId]);
+
+  useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else if (selectedDepartmentId) {
+      loadCoursesByDepartment(selectedDepartmentId);
+    }
+  }, [selectedProgramId]);
+
+  useEffect(() => {
     applyFilters();
-  }, [searchQuery, selectedDepartmentId, courses]);
+  }, [searchQuery, selectedDepartmentId, selectedProgramId, selectedCourseId, courses]);
 
   const loadDepartments = async () => {
     try {
@@ -37,6 +63,61 @@ export default function ReportsPage() {
       setDepartments(data);
     } catch (error: any) {
       console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Reports Page] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Reports Page] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Reports Page] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Reports Page] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
+  const loadCoursesByDepartment = async (departmentId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const deptCourses = allCourses.filter((course: any) => {
+        const deptId = typeof course.department === "object" && course.department !== null
+          ? (course.department as any)._id
+          : course.department;
+        return deptId === departmentId;
+      });
+      setCourses(deptCourses);
+      // Reset course selection if selected course is not in new list
+      if (selectedCourseId && !deptCourses.find((c: any) => c._id === selectedCourseId)) {
+        setSelectedCourseId("");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      if (selectedCourseId && !programCourses.find((c: any) => c._id === selectedCourseId)) {
+        setSelectedCourseId("");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
     }
   };
 
@@ -104,6 +185,24 @@ export default function ReportsPage() {
           ? course.department._id 
           : course.department;
         return deptId === selectedDepartmentId;
+      });
+    }
+
+    // Filter by program
+    if (selectedProgramId) {
+      filtered = filtered.filter((course) => {
+        const progId =
+          typeof course.program === "object" && course.program !== null
+            ? (course.program as any)._id
+            : course.program;
+        return progId === selectedProgramId;
+      });
+    }
+
+    // Filter by course
+    if (selectedCourseId) {
+      filtered = filtered.filter((course) => {
+        return course._id === selectedCourseId;
       });
     }
 
@@ -234,11 +333,11 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle>Filtreler ve Arama</CardTitle>
             <CardDescription>
-              Dersleri bölüm veya arama terimi ile filtreleyin
+              Dersleri bölüm, program, ders veya arama terimi ile filtreleyin
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Department Filter */}
               <div className="space-y-2">
                 <label htmlFor="department-filter" className="text-sm font-medium">
@@ -254,6 +353,54 @@ export default function ReportsPage() {
                   {departments.map((dept) => (
                     <option key={dept._id} value={dept._id}>
                       {dept.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Program Filter */}
+              <div className="space-y-2">
+                <label htmlFor="program-filter" className="text-sm font-medium">
+                  Program
+                </label>
+                <select
+                  id="program-filter"
+                  value={selectedProgramId}
+                  onChange={(e) => setSelectedProgramId(e.target.value)}
+                  disabled={!selectedDepartmentId || loadingPrograms}
+                  className="flex h-10 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-[#0a294e] focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!selectedDepartmentId 
+                      ? "Önce bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Tüm Programlar"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Course Filter */}
+              <div className="space-y-2">
+                <label htmlFor="course-filter" className="text-sm font-medium">
+                  Ders
+                </label>
+                <select
+                  id="course-filter"
+                  value={selectedCourseId}
+                  onChange={(e) => setSelectedCourseId(e.target.value)}
+                  disabled={!selectedDepartmentId && departments.length > 0}
+                  className="flex h-10 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-[#0a294e] focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Tüm Dersler</option>
+                  {courses.map((course) => (
+                    <option key={course._id} value={course._id}>
+                      {course.code} - {course.name}
                     </option>
                   ))}
                 </select>

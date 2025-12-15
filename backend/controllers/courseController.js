@@ -1,5 +1,6 @@
 import Course from "../models/Course.js";
 import Department from "../models/Department.js";
+import Program from "../models/Program.js";
 import LearningOutcome from "../models/LearningOutcome.js";
 import ProgramOutcome from "../models/ProgramOutcome.js";
 import Exam from "../models/Exam.js";
@@ -14,6 +15,7 @@ const createCourse = async (req, res) => {
       code,
       description,
       departmentId,
+      programId,
       semester,
       learningOutcomes, // ÖÇ listesi (zorunlu)
       midtermExam,
@@ -44,6 +46,24 @@ const createCourse = async (req, res) => {
         success: false,
         message: "Seçilen bölüm bulunamadı.",
       });
+    }
+
+    // Validate program if provided
+    if (programId) {
+      const program = await Program.findById(programId);
+      if (!program) {
+        return res.status(400).json({
+          success: false,
+          message: "Seçilen program bulunamadı.",
+        });
+      }
+      // Validate program belongs to the selected department
+      if (program.department.toString() !== departmentId) {
+        return res.status(400).json({
+          success: false,
+          message: "Seçilen program, seçilen bölüme ait değil.",
+        });
+      }
     }
 
     if (!Array.isArray(learningOutcomes) || learningOutcomes.length === 0) {
@@ -101,6 +121,7 @@ const createCourse = async (req, res) => {
       code: normalizedCode,
       description: description?.trim() || "",
       department: departmentId,
+      program: programId && programId.trim() !== "" ? programId : undefined,
       semester: semester.trim(),
       learningOutcomes: learningOutcomes || [],
       midtermExam: {
@@ -212,7 +233,10 @@ const createCourse = async (req, res) => {
     // Populate before returning
     const populatedCourse = await Course.findById(savedCourse._id)
       .populate("department", "name code")
+      .populate("program", "code name nameEn")
       .exec();
+
+    console.log("Create Course - Saved course with program:", populatedCourse.program); // Debug log
 
     return res.status(201).json({
       success: true,
@@ -232,6 +256,7 @@ const getCourses = async (req, res) => {
   try {
     const courses = await Course.find()
       .populate("department", "name code")
+      .populate("program", "code name nameEn")
       .sort({ updatedAt: -1 });
 
     // Transform to include counts and exam codes
@@ -243,6 +268,7 @@ const getCourses = async (req, res) => {
         code: courseObj.code,
         description: courseObj.description,
         department: courseObj.department || null,
+        program: courseObj.program || null,
         semester: courseObj.semester,
         learningOutcomes: courseObj.learningOutcomes || [],
         learningOutcomesCount: courseObj.learningOutcomes?.length || 0,
@@ -327,6 +353,7 @@ const updateCourse = async (req, res) => {
       code,
       description,
       departmentId,
+      programId,
       semester,
       learningOutcomes, // Changed from "outcomes"
       midtermExam,
@@ -371,6 +398,9 @@ const updateCourse = async (req, res) => {
     if (code !== undefined) updateData.code = code;
     if (description !== undefined) updateData.description = description;
     if (departmentId !== undefined) updateData.department = departmentId;
+    if (programId !== undefined) {
+      updateData.program = programId || null; // Allow clearing program
+    }
     if (semester !== undefined) updateData.semester = semester;
 
     // Handle learning outcomes
@@ -476,12 +506,32 @@ const updateCourse = async (req, res) => {
       }
     }
 
+    // Validate program if provided
+    if (updateData.program) {
+      const program = await Program.findById(updateData.program);
+      if (!program) {
+        return res.status(400).json({
+          success: false,
+          message: "Seçilen program bulunamadı.",
+        });
+      }
+      // Validate program belongs to the selected department
+      const departmentId = updateData.department || course.department;
+      if (program.department.toString() !== departmentId.toString()) {
+        return res.status(400).json({
+          success: false,
+          message: "Seçilen program, seçilen bölüme ait değil.",
+        });
+      }
+    }
+
     // Update course
     const updatedCourse = await Course.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     })
       .populate("department", "name code")
+      .populate("program", "code name nameEn")
       .exec();
 
     return res.status(200).json({

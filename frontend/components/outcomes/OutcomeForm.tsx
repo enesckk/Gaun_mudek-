@@ -21,6 +21,8 @@ import {
   type UpdateLearningOutcomeDto,
 } from "@/lib/api/learningOutcomeApi";
 import { courseApi } from "@/lib/api/courseApi";
+import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 const outcomeSchema = z.object({
   courseId: z.string().min(1, "Ders seçimi gereklidir"),
@@ -46,6 +48,11 @@ export function OutcomeForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [courses, setCourses] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [existingOutcomes, setExistingOutcomes] = useState<LearningOutcome[]>([]);
 
   const form = useForm<OutcomeFormData>({
@@ -68,7 +75,30 @@ export function OutcomeForm({
 
   useEffect(() => {
     fetchCourses();
+    loadDepartments();
   }, []);
+
+  useEffect(() => {
+    if (selectedDepartmentId) {
+      loadPrograms(selectedDepartmentId);
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+    }
+  }, [selectedDepartmentId]);
+
+  useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else {
+      // If no program selected, show all courses or courses filtered by department
+      if (selectedDepartmentId) {
+        loadCoursesByDepartment(selectedDepartmentId);
+      } else {
+        fetchCourses();
+      }
+    }
+  }, [selectedProgramId, selectedDepartmentId]);
 
   useEffect(() => {
     if (selectedCourseId && mode === "create") {
@@ -77,6 +107,68 @@ export function OutcomeForm({
       fetchExistingOutcomes(initialData.courseId);
     }
   }, [selectedCourseId, initialData?.courseId, mode]);
+
+  const loadDepartments = async () => {
+    try {
+      const data = await departmentApi.getAll();
+      setDepartments(data);
+    } catch (error) {
+      console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      const data = await programApi.getAll(deptId);
+      setPrograms(data || []);
+    } catch (error) {
+      console.error("Programlar yüklenemedi:", error);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      const currentCourseId = form.getValues("courseId");
+      if (currentCourseId && !programCourses.find((c: any) => c._id === currentCourseId)) {
+        form.setValue("courseId", "");
+      }
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
+
+  const loadCoursesByDepartment = async (departmentId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const deptCourses = allCourses.filter((course: any) => {
+        const deptId = typeof course.department === "object" && course.department !== null
+          ? (course.department as any)._id
+          : course.department;
+        return deptId === departmentId;
+      });
+      setCourses(deptCourses);
+      // Reset course selection if selected course is not in new list
+      const currentCourseId = form.getValues("courseId");
+      if (currentCourseId && !deptCourses.find((c: any) => c._id === currentCourseId)) {
+        form.setValue("courseId", "");
+      }
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
 
   const fetchCourses = async () => {
     try {
@@ -121,15 +213,73 @@ export function OutcomeForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      {/* Department Filter */}
+      <FormItem>
+        <FormLabel htmlFor="departmentId">Bölüm</FormLabel>
+        <select
+          id="departmentId"
+          value={selectedDepartmentId}
+          onChange={(e) => {
+            setSelectedDepartmentId(e.target.value);
+            setSelectedProgramId("");
+            form.setValue("courseId", "");
+          }}
+          disabled={isSubmitting || mode === "edit"}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">Tüm Bölümler</option>
+          {departments.map((dept) => (
+            <option key={dept._id} value={dept._id}>
+              {dept.name}
+            </option>
+          ))}
+        </select>
+      </FormItem>
+
+      {/* Program Filter */}
+      <FormItem>
+        <FormLabel htmlFor="programId">Program</FormLabel>
+        <select
+          id="programId"
+          value={selectedProgramId}
+          onChange={(e) => {
+            setSelectedProgramId(e.target.value);
+            form.setValue("courseId", "");
+          }}
+          disabled={isSubmitting || mode === "edit" || !selectedDepartmentId || loadingPrograms}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">
+            {!selectedDepartmentId 
+              ? "Önce bölüm seçin" 
+              : loadingPrograms
+              ? "Yükleniyor..."
+              : "Tüm Programlar"}
+          </option>
+          {programs.map((prog) => (
+            <option key={prog._id} value={prog._id}>
+              {prog.name} {prog.code ? `(${prog.code})` : ""}
+            </option>
+          ))}
+        </select>
+      </FormItem>
+
+      {/* Course Selection */}
       <FormItem>
         <FormLabel htmlFor="courseId">Ders <span className="text-destructive">*</span></FormLabel>
         <select
           id="courseId"
           {...form.register("courseId")}
-          disabled={isSubmitting || mode === "edit"}
+          disabled={isSubmitting || mode === "edit" || (selectedProgramId ? courses.length === 0 : false)}
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <option value="">Ders seçin</option>
+          <option value="">
+            {selectedProgramId && courses.length === 0
+              ? "Bu program için ders bulunamadı"
+              : selectedProgramId
+              ? "Ders seçin"
+              : "Önce program seçin veya ders seçin"}
+          </option>
           {courses.map((course) => (
             <option key={course._id} value={course._id}>
               {course.code} - {course.name}

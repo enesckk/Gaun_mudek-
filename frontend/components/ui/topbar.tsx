@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
-import { User, Bell, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { User, Bell, Settings, Menu } from "lucide-react";
 import { Button } from "./button";
+import { NotificationDropdown } from "./NotificationDropdown";
+import { useSidebar } from "@/components/providers/SidebarProvider";
 
 interface TopbarProps {
   title?: string;
@@ -29,6 +31,7 @@ const pageTitles: Record<string, string> = {
   "/ai": "AI Sınav İşleme",
   "/scores": "Puanlar",
   "/settings": "Ayarlar",
+  "/dashboard/settings": "Ayarlar",
 };
 
 function getPageTitle(pathname: string): string {
@@ -62,6 +65,9 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith("/dashboard/exams/")) {
     return "Sınav İşlemleri";
   }
+  if (pathname.startsWith("/dashboard/settings")) {
+    return "Ayarlar";
+  }
 
   // Navigation items'ı kontrol et
   for (const item of navigation) {
@@ -76,24 +82,40 @@ function getPageTitle(pathname: string): string {
 
 export function Topbar({ title }: TopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const pageTitle = title || getPageTitle(pathname);
+  const { isOpen, toggle } = useSidebar();
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-full items-center justify-between px-6">
-        <div>
-          <h1 className="text-2xl font-semibold">{pageTitle}</h1>
+    <header className="sticky top-0 z-30 h-14 sm:h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-full items-center justify-between px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          {/* Mobile hamburger menu button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggle}
+            className="lg:hidden h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 -ml-1 sm:ml-0"
+            title={isOpen ? "Menüyü Kapat" : "Menüyü Aç"}
+          >
+            <Menu className="h-5 w-5 text-foreground" />
+          </Button>
+          <h1 className="text-base sm:text-xl lg:text-2xl font-semibold truncate text-foreground ml-0 sm:ml-0">{pageTitle}</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <NotificationDropdown />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-9 w-9 sm:h-10 sm:w-10"
+            onClick={() => router.push("/dashboard/settings")}
+            title="Ayarlar"
+          >
+            <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Settings className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="gap-2">
-            <User className="h-5 w-5" />
-            <span className="hidden sm:inline">Yönetici</span>
+          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 gap-2">
+            <User className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
+            <span className="hidden md:inline text-sm">Yönetici</span>
           </Button>
         </div>
       </div>

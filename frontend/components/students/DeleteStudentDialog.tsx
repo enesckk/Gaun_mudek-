@@ -36,14 +36,14 @@ export function DeleteStudentDialog({
     setIsDeleting(true);
     try {
       await studentApi.remove(studentId);
-      toast.success("Student deleted successfully");
+      toast.success("Öğrenci başarıyla silindi");
       onOpenChange(false);
       router.refresh();
       onSuccess?.();
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
-        "Failed to delete student. It may have associated scores.";
+        "Öğrenci silinemedi. İlişkili puanlar olabilir.";
       toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
@@ -54,12 +54,12 @@ export function DeleteStudentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onClose={() => onOpenChange(false)}>
         <DialogHeader>
-          <DialogTitle>Delete Student</DialogTitle>
+          <DialogTitle>Öğrenciyi Sil</DialogTitle>
           <DialogDescription>
-            Deleting this student will remove all related academic data. Continue?
+            Bu öğrenciyi silmek, tüm ilişkili akademik verileri kaldıracaktır. Devam etmek istiyor musunuz?
             <br />
             <br />
-            <strong>{studentName}</strong> will be permanently deleted. This action cannot be undone.
+            <strong>{studentName}</strong> kalıcı olarak silinecektir. Bu işlem geri alınamaz.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -68,14 +68,14 @@ export function DeleteStudentDialog({
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
-            Cancel
+            İptal
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? "Siliniyor..." : "Sil"}
           </Button>
         </DialogFooter>
       </DialogContent>

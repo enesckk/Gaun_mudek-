@@ -68,3 +68,718 @@
   }
 }
 
+/* Dark mode text color fixes - ensure all text is visible */
+.dark {
+  color: hsl(var(--foreground));
+}
+
+/* Force all text elements to use foreground color in dark mode */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark p,
+.dark span,
+.dark label,
+.dark div,
+.dark input,
+.dark select,
+.dark textarea,
+.dark button,
+.dark a,
+.dark li,
+.dark td,
+.dark th,
+.dark small,
+.dark strong,
+.dark em,
+.dark b,
+.dark i {
+  color: hsl(var(--foreground));
+}
+
+/* Override any black text colors in dark mode */
+.dark [class*="text-black"],
+.dark [style*="color: black"],
+.dark [style*="color: #000"],
+.dark [style*="color: rgb(0, 0, 0)"],
+.dark [style*="color: rgba(0, 0, 0"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure text utility classes work correctly in dark mode */
+.dark .text-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-muted-foreground {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-primary-foreground {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .text-secondary-foreground {
+  color: hsl(var(--secondary-foreground)) !important;
+}
+
+.dark .text-accent-foreground {
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* ============================================
+   ICON COLORS IN DARK MODE - COMPREHENSIVE FIX
+   ============================================ */
+
+/* Base: All SVG icons should be visible in dark mode */
+.dark svg {
+  color: hsl(var(--foreground));
+}
+
+/* Lucide-react icons use stroke, ensure they're visible */
+.dark svg path {
+  stroke: currentColor;
+  fill: none;
+}
+
+.dark svg circle,
+.dark svg rect,
+.dark svg line,
+.dark svg polyline,
+.dark svg polygon {
+  stroke: currentColor;
+  fill: none;
+}
+
+/* Force all SVG icons without explicit text color to use foreground */
+.dark svg:not([class*="text-"]) {
+  color: hsl(var(--foreground));
+}
+
+/* Sidebar icons */
+.dark aside nav svg {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark aside nav a:hover svg {
+  color: hsl(var(--accent-foreground));
+}
+
+.dark aside nav a[class*="bg-primary"] svg {
+  color: hsl(var(--primary-foreground));
+}
+
+/* Topbar icons */
+.dark header svg {
+  color: hsl(var(--foreground));
+}
+
+/* All button icons in dark mode */
+.dark button svg,
+.dark button[class*="ghost"] svg,
+.dark button[class*="outline"] svg,
+.dark button[class*="default"] svg {
+  color: hsl(var(--foreground));
+}
+
+.dark button:hover svg {
+  color: hsl(var(--foreground));
+}
+
+/* Card icons */
+.dark [class*="Card"] svg,
+.dark [class*="card"] svg {
+  color: hsl(var(--foreground));
+}
+
+/* Table icons */
+.dark table svg,
+.dark [class*="Table"] svg {
+  color: hsl(var(--foreground));
+}
+
+/* Link icons */
+.dark a svg {
+  color: hsl(var(--foreground));
+}
+
+.dark a:hover svg {
+  color: hsl(var(--foreground));
+}
+
+/* Badge icons */
+.dark [class*="Badge"] svg,
+.dark [class*="badge"] svg {
+  color: hsl(var(--foreground));
+}
+
+/* Input/Form icons */
+.dark input + svg,
+.dark select + svg,
+.dark [class*="Input"] svg {
+  color: hsl(var(--foreground));
+}
+
+/* Override hardcoded dark colors in icons */
+.dark svg[class*="text-slate-700"],
+.dark svg[class*="text-slate-500"],
+.dark svg[class*="text-slate-600"],
+.dark svg[class*="text-gray-700"],
+.dark svg[class*="text-gray-500"],
+.dark svg[class*="text-gray-600"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Override any inline styles for icons */
+.dark svg[style*="color"],
+.dark [class*="icon"][style*="color"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Specific icon classes that might have dark colors */
+.dark .text-slate-700 svg,
+.dark .text-slate-500 svg,
+.dark .text-slate-600 svg {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure icons in buttons with specific colors are visible */
+.dark button[class*="bg-"] svg {
+  color: hsl(var(--foreground));
+}
+
+/* Icons in cards with background colors */
+.dark [class*="bg-slate-100"] svg,
+.dark [class*="bg-slate-200"] svg {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Dashboard stats icons */
+.dark [class*="bg-\[#0a294e\]"] svg {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* ============================================
+   TABLE STYLES IN DARK MODE - COMPREHENSIVE FIX
+   ============================================ */
+
+/* Table headers - ensure they're visible in dark mode */
+.dark table th,
+.dark thead th,
+.dark [class*="TableHead"] {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Table header backgrounds - override hardcoded light colors */
+.dark thead[class*="bg-slate-50"],
+.dark thead[class*="bg-slate-100"],
+.dark thead[class*="bg-slate-200"],
+.dark [class*="bg-slate-50"] th,
+.dark [class*="bg-slate-100"] th,
+.dark [class*="bg-slate-200"] th {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Table cells */
+.dark table td,
+.dark tbody td,
+.dark [class*="TableCell"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Table rows */
+.dark table tr,
+.dark tbody tr {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Table borders */
+.dark table,
+.dark table th,
+.dark table td {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Table row hover states */
+.dark table tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.5) !important;
+}
+
+/* Table alternating row colors */
+.dark table tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.3) !important;
+}
+
+/* Override hardcoded table header text colors */
+.dark th[class*="text-slate-900"],
+.dark th[class*="text-slate-800"],
+.dark th[class*="text-slate-700"],
+.dark th[class*="text-black"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* ============================================
+   CHART STYLES IN DARK MODE - COMPREHENSIVE FIX
+   ============================================ */
+
+/* Recharts - ensure all text is visible */
+.dark .recharts-wrapper,
+.dark .recharts-cartesian-axis-tick-value,
+.dark .recharts-legend-item-text,
+.dark .recharts-tooltip-label {
+  color: hsl(var(--foreground)) !important;
+  fill: hsl(var(--foreground)) !important;
+}
+
+/* Recharts axis lines and grid */
+.dark .recharts-cartesian-axis-line,
+.dark .recharts-cartesian-grid-line {
+  stroke: hsl(var(--border)) !important;
+}
+
+/* Recharts tooltip */
+.dark .recharts-tooltip-wrapper {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .recharts-tooltip-label {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-tooltip-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Recharts legend */
+.dark .recharts-legend-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Chart container backgrounds */
+.dark [class*="Chart"] {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* Override hardcoded chart colors */
+.dark [style*="background-color: white"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color: rgb(255, 255, 255)"] {
+  background-color: hsl(var(--card)) !important;
+}
+
+.dark [style*="border: 1px solid #e5e7eb"],
+.dark [style*="border: 1px solid rgb(229, 231, 235)"] {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* ============================================
+   CARD AND FORM ELEMENTS IN DARK MODE - COMPREHENSIVE FIX
+   ============================================ */
+
+/* Override all white/light backgrounds in cards */
+.dark [class*="bg-white"],
+.dark [class*="bg-slate-50"],
+.dark [class*="bg-slate-100"],
+.dark [class*="bg-slate-200"],
+.dark [class*="bg-gray-50"],
+.dark [class*="bg-gray-100"],
+.dark [class*="bg-gray-200"] {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* Card headers with gradients - override light gradients */
+.dark [class*="from-slate-50"],
+.dark [class*="from-slate-100"],
+.dark [class*="to-slate-50"],
+.dark [class*="to-slate-100"],
+.dark [class*="from-gray-50"],
+.dark [class*="from-gray-100"],
+.dark [class*="to-gray-50"],
+.dark [class*="to-gray-100"] {
+  background: linear-gradient(to right, hsl(var(--muted)), hsl(var(--muted))) !important;
+}
+
+/* Ensure text in cards is visible */
+.dark [class*="Card"] {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark [class*="Card"] * {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Card headers specifically */
+.dark [class*="CardHeader"] {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark [class*="CardHeader"] * {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Input and form elements */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.7;
+}
+
+/* Dropdown/Select backgrounds */
+.dark select option {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Override hardcoded text colors on light backgrounds */
+.dark [class*="text-slate-900"],
+.dark [class*="text-slate-800"],
+.dark [class*="text-slate-700"],
+.dark [class*="text-gray-900"],
+.dark [class*="text-gray-800"],
+.dark [class*="text-gray-700"] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure all text in white cards is visible */
+.dark [class*="bg-white"] *,
+.dark [class*="bg-slate-50"] *,
+.dark [class*="bg-slate-100"] *,
+.dark [class*="bg-slate-200"] * {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Progress bars and indicators */
+.dark [class*="bg-gray-200"] {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Legend text in charts */
+.dark .recharts-legend-wrapper {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-item-text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure bar chart fills are visible - override any dark fills */
+.dark .recharts-bar-rectangle {
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+.dark .recharts-bar-rectangle[fill="#22c55e"],
+.dark .recharts-bar-rectangle[fill="#eab308"],
+.dark .recharts-bar-rectangle[fill="#ef4444"],
+.dark .recharts-bar-rectangle[fill="#10b981"],
+.dark .recharts-bar-rectangle[fill="#f59e0b"] {
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+  fill: inherit !important;
+}
+
+/* Force bar colors to be visible */
+.dark .recharts-bar .recharts-bar-rectangle {
+  opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+/* Ensure all chart bars are visible */
+.dark .recharts-bar {
+  opacity: 1 !important;
+}
+
+/* Override any stroke-only bars to show fill */
+.dark .recharts-bar-rectangle[stroke] {
+  fill: currentColor !important;
+  fill-opacity: 1 !important;
+}
+
+/* Legend text - force visibility */
+.dark .recharts-legend-wrapper .recharts-legend-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper .recharts-legend-item-text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Chart legend items */
+.dark .recharts-legend-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-item-text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Chart color key text */
+.dark .mt-4 span,
+.dark .mt-4 .text-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Recharts legend - more aggressive fixes */
+.dark .recharts-legend-wrapper,
+.dark .recharts-legend-wrapper * {
+  color: hsl(var(--foreground)) !important;
+  fill: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper .recharts-default-legend {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper .recharts-default-legend .recharts-legend-item {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper .recharts-default-legend .recharts-legend-item-text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .recharts-legend-wrapper .recharts-legend-item-text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* All text elements in legend */
+.dark .recharts-legend-wrapper tspan,
+.dark .recharts-legend-wrapper text,
+.dark .recharts-legend-item-text,
+.dark .recharts-legend-item text {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Force legend visibility - target all possible selectors */
+.dark svg .recharts-legend-wrapper *,
+.dark svg .recharts-legend-item *,
+.dark svg .recharts-legend-wrapper text,
+.dark svg .recharts-legend-wrapper tspan {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Force bar fills to be visible - use !important */
+.dark .recharts-bar .recharts-bar-rectangle[fill="#22c55e"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill: #22c55e"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill:#22c55e"] {
+  fill: #22c55e !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+.dark .recharts-bar .recharts-bar-rectangle[fill="#eab308"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill: #eab308"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill:#eab308"] {
+  fill: #eab308 !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+.dark .recharts-bar .recharts-bar-rectangle[fill="#ef4444"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill: #ef4444"],
+.dark .recharts-bar .recharts-bar-rectangle[style*="fill:#ef4444"] {
+  fill: #ef4444 !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* Override any stroke-only rendering - force all bar rectangles to have fill */
+.dark .recharts-bar-rectangle {
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* More aggressive: target all rects in bar chart */
+.dark .recharts-bar rect.recharts-bar-rectangle {
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* Force fill on any rect that doesn't have a fill */
+.dark .recharts-bar-rectangle:not([fill]),
+.dark .recharts-bar-rectangle[fill="none"],
+.dark .recharts-bar-rectangle[fill="transparent"] {
+  fill: #22c55e !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+}
+
+/* Progress bars in dark mode */
+.dark .bg-gray-200 {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-purple-50 {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS (SONNER) IN DARK MODE
+   ============================================ */
+
+/* Toast container */
+.dark [data-sonner-toaster],
+.dark [data-sonner-toaster] [data-sonner-toast] {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Toast title and description */
+.dark [data-sonner-toast] [data-title],
+.dark [data-sonner-toast] [data-description] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Success toast */
+.dark [data-sonner-toast][data-type="success"] {
+  background-color: hsl(142 76% 36% / 0.2) !important;
+  border-color: hsl(142 76% 36%) !important;
+  color: hsl(142 76% 36%) !important;
+}
+
+.dark [data-sonner-toast][data-type="success"] [data-title],
+.dark [data-sonner-toast][data-type="success"] [data-description] {
+  color: hsl(142 76% 36%) !important;
+}
+
+/* Error toast */
+.dark [data-sonner-toast][data-type="error"] {
+  background-color: hsl(0 84% 60% / 0.2) !important;
+  border-color: hsl(0 84% 60%) !important;
+  color: hsl(0 84% 60%) !important;
+}
+
+.dark [data-sonner-toast][data-type="error"] [data-title],
+.dark [data-sonner-toast][data-type="error"] [data-description] {
+  color: hsl(0 84% 60%) !important;
+}
+
+/* Info toast */
+.dark [data-sonner-toast][data-type="info"] {
+  background-color: hsl(217 91% 60% / 0.2) !important;
+  border-color: hsl(217 91% 60%) !important;
+  color: hsl(217 91% 60%) !important;
+}
+
+.dark [data-sonner-toast][data-type="info"] [data-title],
+.dark [data-sonner-toast][data-type="info"] [data-description] {
+  color: hsl(217 91% 60%) !important;
+}
+
+/* Warning toast */
+.dark [data-sonner-toast][data-type="warning"] {
+  background-color: hsl(38 92% 50% / 0.2) !important;
+  border-color: hsl(38 92% 50%) !important;
+  color: hsl(38 92% 50%) !important;
+}
+
+.dark [data-sonner-toast][data-type="warning"] [data-title],
+.dark [data-sonner-toast][data-type="warning"] [data-description] {
+  color: hsl(38 92% 50%) !important;
+}
+
+/* Default toast */
+.dark [data-sonner-toast]:not([data-type]) {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark [data-sonner-toast]:not([data-type]) [data-title],
+.dark [data-sonner-toast]:not([data-type]) [data-description] {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Toast close button */
+.dark [data-sonner-toast] [data-close-button] {
+  color: hsl(var(--foreground)) !important;
+  background-color: transparent !important;
+}
+
+.dark [data-sonner-toast] [data-close-button]:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* ============================================
+   MOBILE SIDEBAR OPTIMIZATIONS
+   ============================================ */
+
+/* Smooth sidebar transitions */
+@media (max-width: 1023px) {
+  /* Sidebar slide animation */
+  aside {
+    will-change: transform;
+  }
+
+  /* Better touch targets for mobile */
+  nav a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Prevent body scroll when sidebar is open */
+  body:has(aside.translate-x-0) {
+    overflow: hidden;
+  }
+}
+
+/* Mobile-specific sidebar improvements */
+@media (max-width: 640px) {
+  /* Smaller sidebar on very small screens */
+  aside {
+    width: 100% !important;
+    max-width: 320px;
+  }
+
+  /* Better spacing for mobile navigation */
+  nav {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Compact navigation items */
+  nav a {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1023px) {
+  aside {
+    width: 280px;
+  }
+}
+

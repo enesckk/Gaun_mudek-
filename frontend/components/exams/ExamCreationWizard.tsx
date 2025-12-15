@@ -25,6 +25,8 @@ import {
   type Exam,
 } from "@/lib/api/examApi";
 import { courseApi, type Course } from "@/lib/api/courseApi";
+import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 interface ExamCreationWizardProps {
   onSuccess?: () => void;
@@ -44,6 +46,11 @@ export function ExamCreationWizard({ onSuccess }: ExamCreationWizardProps) {
 
   // Form data
   const [courses, setCourses] = useState<Course[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [courseId, setCourseId] = useState("");
   const [examType, setExamType] = useState<"midterm" | "final">("midterm");
   const [examCode, setExamCode] = useState("");
@@ -53,9 +60,105 @@ export function ExamCreationWizard({ onSuccess }: ExamCreationWizardProps) {
   const [existingExams, setExistingExams] = useState<Exam[]>([]);
   const [examCodeError, setExamCodeError] = useState("");
 
+  const loadDepartments = async () => {
+    try {
+      const data = await departmentApi.getAll();
+      setDepartments(data);
+    } catch (error) {
+      console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Exams Wizard] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Exams Wizard] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Exams Wizard] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Exams Wizard] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      if (courseId && !programCourses.find((c: any) => c._id === courseId)) {
+        setCourseId("");
+      }
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
+
+  const loadCoursesByDepartment = async (departmentId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const deptCourses = allCourses.filter((course: any) => {
+        const deptId = typeof course.department === "object" && course.department !== null
+          ? (course.department as any)._id
+          : course.department;
+        return deptId === departmentId;
+      });
+      setCourses(deptCourses);
+      // Reset course selection if selected course is not in new list
+      if (courseId && !deptCourses.find((c: any) => c._id === courseId)) {
+        setCourseId("");
+      }
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const data = await courseApi.getAll();
+      setCourses(data);
+    } catch (error) {
+      toast.error("Dersler yüklenemedi");
+    }
+  };
+
   useEffect(() => {
     fetchCourses();
+    loadDepartments();
   }, []);
+
+  useEffect(() => {
+    if (selectedDepartmentId) {
+      loadPrograms(selectedDepartmentId);
+    } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+    }
+  }, [selectedDepartmentId]);
+
+  useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else {
+      // If no program selected, show all courses or courses filtered by department
+      if (selectedDepartmentId) {
+        loadCoursesByDepartment(selectedDepartmentId);
+      } else {
+        fetchCourses();
+      }
+    }
+  }, [selectedProgramId, selectedDepartmentId]);
 
   useEffect(() => {
     if (courseId) {
@@ -106,15 +209,6 @@ export function ExamCreationWizard({ onSuccess }: ExamCreationWizardProps) {
       return updated;
     });
   }, [questionCount]);
-
-  const fetchCourses = async () => {
-    try {
-      const data = await courseApi.getAll();
-      setCourses(data);
-    } catch (error) {
-      toast.error("Dersler yüklenemedi");
-    }
-  };
 
   const selectedCourse = useMemo(
     () => courses.find((c) => c._id === courseId),
@@ -293,6 +387,61 @@ export function ExamCreationWizard({ onSuccess }: ExamCreationWizardProps) {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Department and Program Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="departmentId" className="text-base">
+                  Bölüm
+                </Label>
+                <Select
+                  id="departmentId"
+                  value={selectedDepartmentId}
+                  onChange={(e) => {
+                    setSelectedDepartmentId(e.target.value);
+                    setSelectedProgramId("");
+                    setCourseId("");
+                  }}
+                  className="h-12 text-base"
+                >
+                  <option value="">Tüm Bölümler</option>
+                  {departments.map((dept) => (
+                    <option key={dept._id} value={dept._id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="programId" className="text-base">
+                  Program
+                </Label>
+                <Select
+                  id="programId"
+                  value={selectedProgramId}
+                  onChange={(e) => {
+                    setSelectedProgramId(e.target.value);
+                    setCourseId("");
+                  }}
+                  disabled={!selectedDepartmentId || loadingPrograms}
+                  className="h-12 text-base"
+                >
+                  <option value="">
+                    {!selectedDepartmentId 
+                      ? "Önce bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Tüm Programlar"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="courseId" className="text-base">
@@ -302,9 +451,16 @@ export function ExamCreationWizard({ onSuccess }: ExamCreationWizardProps) {
                   id="courseId"
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
+                  disabled={!!(selectedProgramId && courses.length === 0)}
                   className="h-12 text-base"
                 >
-                  <option value="">Bir ders seçin</option>
+                  <option value="">
+                    {selectedProgramId && courses.length === 0
+                      ? "Bu program için ders bulunamadı"
+                      : selectedProgramId
+                      ? "Ders seçin"
+                      : "Önce program seçin veya ders seçin"}
+                  </option>
                   {courses.map((course) => (
                     <option key={course._id} value={course._id}>
                       {course.code} - {course.name}

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { programOutcomeApi } from "@/lib/api/programOutcomeApi";
 
 interface DeleteProgramOutcomeDialogProps {
-  departmentId: string;
+  programId: string;
   programOutcomeCode: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,7 +23,7 @@ interface DeleteProgramOutcomeDialogProps {
 }
 
 export function DeleteProgramOutcomeDialog({
-  departmentId,
+  programId,
   programOutcomeCode,
   open,
   onOpenChange,
@@ -33,14 +33,14 @@ export function DeleteProgramOutcomeDialog({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!departmentId) {
-      toast.error("Bölüm bilgisi bulunamadı");
+    if (!programId) {
+      toast.error("Program bilgisi bulunamadı");
       return;
     }
     
     setIsDeleting(true);
     try {
-      await programOutcomeApi.delete(departmentId, programOutcomeCode);
+      await programOutcomeApi.deleteFromProgram(programId, programOutcomeCode);
       toast.success("Program çıktısı başarıyla silindi");
       onOpenChange(false);
       router.refresh();

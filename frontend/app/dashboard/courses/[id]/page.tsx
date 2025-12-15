@@ -81,6 +81,10 @@ export default function CourseDetailPage() {
   const department = (course as any).department;
   const departmentId = typeof department === "object" ? department?._id : null;
   const departmentName = typeof department === "object" ? department?.name : department || "Bilinmiyor";
+  
+  // Get programId from course
+  const program = (course as any).program;
+  const programId = typeof program === "object" && program !== null ? program?._id : (typeof program === "string" ? program : null);
 
   return (
     <div className="min-h-screen bg-background p-6">

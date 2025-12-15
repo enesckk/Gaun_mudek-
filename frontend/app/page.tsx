@@ -45,12 +45,28 @@ export default function DashboardPage() {
         return sum + (course.learningOutcomes?.length || 0);
       }, 0);
 
-      // Calculate total program outcomes from all departments
-      const totalPOs = await Promise.all(
+      // Calculate total program outcomes from all programs
+      // Get all programs and aggregate their program outcomes
+      const { programApi } = await import("@/lib/api/programApi");
+      const allPrograms = await Promise.all(
         departments.map(dept => 
-          programOutcomeApi.getByDepartment(dept._id).catch(() => [])
+          programApi.getAll(dept._id).catch(() => [])
         )
-      ).then(results => results.reduce((sum, pos) => sum + pos.length, 0));
+      ).then(results => results.flat());
+      
+      // Count unique program outcomes across all programs
+      const uniquePOCodes = new Set<string>();
+      allPrograms.forEach((program: any) => {
+        if (program.programOutcomes && Array.isArray(program.programOutcomes)) {
+          program.programOutcomes.forEach((po: any) => {
+            if (po.code) {
+              uniquePOCodes.add(po.code);
+            }
+          });
+        }
+      });
+      
+      const totalPOs = uniquePOCodes.size;
 
       setStats({
         totalCourses: courses.length,
@@ -92,8 +108,8 @@ export default function DashboardPage() {
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Aktif dersler</p>
                 </div>
-                <div className="p-3 bg-[#0a294e]/10 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-[#0a294e]" />
+                <div className="p-3 bg-[#0a294e]/10 dark:bg-[#0a294e]/20 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-[#0a294e] dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -107,12 +123,12 @@ export default function DashboardPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-16 mb-1" />
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalLearningOutcomes}</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-foreground">{stats.totalLearningOutcomes}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Tanımlı ÖÇ</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-lg">
-                  <Target className="h-6 w-6 text-slate-700" />
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                  <Target className="h-6 w-6 text-slate-700 dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -126,12 +142,12 @@ export default function DashboardPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-16 mb-1" />
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalExams}</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-foreground">{stats.totalExams}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Oluşturulan sınavlar</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-lg">
-                  <FileText className="h-6 w-6 text-slate-700" />
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                  <FileText className="h-6 w-6 text-slate-700 dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -145,12 +161,12 @@ export default function DashboardPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-16 mb-1" />
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalStudents}</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-foreground">{stats.totalStudents}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Kayıtlı öğrenciler</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-lg">
-                  <Users className="h-6 w-6 text-slate-700" />
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                  <Users className="h-6 w-6 text-slate-700 dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -164,12 +180,12 @@ export default function DashboardPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-16 mb-1" />
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalDepartments}</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-foreground">{stats.totalDepartments}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Farklı bölüm</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-lg">
-                  <GraduationCap className="h-6 w-6 text-slate-700" />
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                  <GraduationCap className="h-6 w-6 text-slate-700 dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -183,12 +199,12 @@ export default function DashboardPage() {
                   {isLoading ? (
                     <Skeleton className="h-8 w-16 mb-1" />
                   ) : (
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalProgramOutcomes}</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-foreground">{stats.totalProgramOutcomes}</p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">Tanımlı PÇ</p>
                 </div>
-                <div className="p-3 bg-slate-100 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-slate-700" />
+                <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                  <BarChart3 className="h-6 w-6 text-slate-700 dark:text-foreground" />
                 </div>
               </div>
             </CardContent>
@@ -203,9 +219,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Derslerim</p>
-                  <p className="text-lg font-semibold text-slate-900">Dersleri Yönet</p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-foreground">Dersleri Yönet</p>
                 </div>
-                <ArrowRight className="h-5 w-5 text-[#0a294e]" />
+                <ArrowRight className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -216,9 +232,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Sınavlar</p>
-                  <p className="text-lg font-semibold text-slate-900">Sınavları Yönet</p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-foreground">Sınavları Yönet</p>
                 </div>
-                <ArrowRight className="h-5 w-5 text-[#0a294e]" />
+                <ArrowRight className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -229,9 +245,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Öğrenciler</p>
-                  <p className="text-lg font-semibold text-slate-900">Öğrencileri Yönet</p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-foreground">Öğrencileri Yönet</p>
                 </div>
-                <ArrowRight className="h-5 w-5 text-[#0a294e]" />
+                <ArrowRight className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -242,9 +258,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Raporlar</p>
-                  <p className="text-lg font-semibold text-slate-900">Raporları Görüntüle</p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-foreground">Raporları Görüntüle</p>
                 </div>
-                <ArrowRight className="h-5 w-5 text-[#0a294e]" />
+                <ArrowRight className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -252,8 +268,8 @@ export default function DashboardPage() {
 
         {/* Recent Activity */}
         <Card className="border-2 border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-            <CardTitle className="text-xl text-slate-900">Hızlı Erişim</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+            <CardTitle className="text-xl text-slate-900 dark:text-foreground">Hızlı Erişim</CardTitle>
             <CardDescription className="text-sm">
               Sık kullanılan işlemlere hızlıca erişin
             </CardDescription>
@@ -262,70 +278,70 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/dashboard/courses")}
               >
-                <Plus className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <Plus className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
-                  <p className="font-semibold">Yeni Ders Oluştur</p>
+                  <p className="font-semibold dark:text-foreground">Yeni Ders Oluştur</p>
                   <p className="text-xs text-muted-foreground">Yeni bir ders ekleyin</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/exams/new")}
               >
-                <Plus className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <Plus className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
-                  <p className="font-semibold">Yeni Sınav Oluştur</p>
+                  <p className="font-semibold dark:text-foreground">Yeni Sınav Oluştur</p>
                   <p className="text-xs text-muted-foreground">Yeni bir sınav ekleyin</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/students/new")}
               >
-                <Plus className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <Plus className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
-                  <p className="font-semibold">Yeni Öğrenci Ekle</p>
+                  <p className="font-semibold dark:text-foreground">Yeni Öğrenci Ekle</p>
                   <p className="text-xs text-muted-foreground">Sisteme öğrenci ekleyin</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/outcomes/new")}
               >
-                <Plus className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <Plus className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
-                  <p className="font-semibold">Yeni Öğrenme Çıktısı</p>
+                  <p className="font-semibold dark:text-foreground">Yeni Öğrenme Çıktısı</p>
                   <p className="text-xs text-muted-foreground">ÖÇ tanımlayın</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/dashboard/program-outcomes")}
               >
-                <Plus className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <Plus className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
-                  <p className="font-semibold">Program Çıktıları</p>
+                  <p className="font-semibold dark:text-foreground">Program Çıktıları</p>
                   <p className="text-xs text-muted-foreground">PÇ yönetimi</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start hover:bg-slate-50"
+                className="h-auto p-4 justify-start hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => router.push("/reports")}
               >
-                <BarChart3 className="h-5 w-5 mr-3 text-[#0a294e]" />
+                <BarChart3 className="h-5 w-5 mr-3 text-[#0a294e] dark:text-foreground" />
                 <div className="text-left">
                   <p className="font-semibold">Raporları Görüntüle</p>
                   <p className="text-xs text-muted-foreground">Analiz ve raporlar</p>

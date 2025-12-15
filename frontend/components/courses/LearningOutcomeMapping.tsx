@@ -28,15 +28,32 @@ export function LearningOutcomeMapping({
   const [isSaving, setIsSaving] = useState(false);
   const [loadingPOs, setLoadingPOs] = useState(true);
 
+  // Get programId from course
+  const programId = typeof (course as any)?.program === "object" && (course as any)?.program !== null
+    ? ((course as any).program as any)._id
+    : (course as any)?.program || null;
+
   useEffect(() => {
     loadProgramOutcomes();
     loadLearningOutcomes();
-  }, [departmentId, course]);
+  }, [departmentId, course, programId]);
 
   const loadProgramOutcomes = async () => {
     try {
       setLoadingPOs(true);
-      const data = await programOutcomeApi.getByDepartment(departmentId);
+      let data: ProgramOutcome[] = [];
+      
+      // Prefer programId over departmentId
+      if (programId) {
+        data = await programOutcomeApi.getByProgram(programId);
+      } else if (departmentId) {
+        // Legacy: fallback to department-based loading
+        data = await programOutcomeApi.getByDepartment(departmentId);
+      } else {
+        setProgramOutcomes([]);
+        return;
+      }
+      
       setProgramOutcomes(data || []);
     } catch (error: any) {
       toast.error("Program çıktıları yüklenemedi");
@@ -192,14 +209,14 @@ export function LearningOutcomeMapping({
                         className={`cursor-pointer text-sm px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                           isSelected
                             ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md"
-                            : "border-2 border-slate-300 text-slate-700 hover:bg-green-50 hover:border-green-400"
+                            : "border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-foreground hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-400 dark:hover:border-green-500"
                         }`}
                         onClick={() => toggleProgramOutcome(loIndex, po.code)}
                       >
                         <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                          isSelected ? "bg-white border-white" : "border-slate-400"
+                          isSelected ? "bg-white border-white" : "border-slate-400 dark:border-slate-500"
                         }`}>
-                          {isSelected && <span className="text-green-600 text-xs">✓</span>}
+                          {isSelected && <span className="text-green-600 dark:text-green-400 text-xs">✓</span>}
                         </span>
                         {po.code} - {po.description}
                       </Badge>
@@ -207,8 +224,8 @@ export function LearningOutcomeMapping({
                   })}
                 </div>
                 {selectedPOs.length > 0 && (
-                  <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-sm text-green-800">
+                  <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <p className="text-sm text-green-800 dark:text-green-300">
                       <strong>Seçilen PÇ'ler:</strong> {selectedPOs.join(", ")}
                     </p>
                   </div>

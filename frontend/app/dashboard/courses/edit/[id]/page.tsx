@@ -18,6 +18,7 @@ import { OutcomeEditor } from "@/components/courses/OutcomeEditor";
 import { ExamSettingsComponent, type ExamSettings } from "@/components/courses/ExamSettings";
 import { courseApi, type Course } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 interface LearningOutcomeInput {
   code: string;
@@ -34,6 +35,8 @@ export default function EditCoursePage() {
   const [isLoadingCourse, setIsLoadingCourse] = useState(true);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingDepartments, setLoadingDepartments] = useState(false);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     courseInfo: true,
     learningOutcomes: false,
@@ -46,6 +49,7 @@ export default function EditCoursePage() {
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [departmentId, setDepartmentId] = useState("");
+  const [programId, setProgramId] = useState("");
   const [semester, setSemester] = useState("");
   const [learningOutcomes, setLearningOutcomes] = useState<LearningOutcomeInput[]>([
     { code: "", description: "", programOutcomes: [] },
@@ -75,6 +79,15 @@ export default function EditCoursePage() {
     }
   }, [courseId]);
 
+  useEffect(() => {
+    if (departmentId) {
+      loadPrograms(departmentId);
+    } else {
+      setPrograms([]);
+      setProgramId("");
+    }
+  }, [departmentId]);
+
   const loadDepartments = async () => {
     try {
       setLoadingDepartments(true);
@@ -89,6 +102,23 @@ export default function EditCoursePage() {
       setDepartments([]);
     } finally {
       setLoadingDepartments(false);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      const data = await programApi.getAll(deptId);
+      if (data && data.length > 0) {
+        setPrograms(data);
+      } else {
+        setPrograms([]);
+      }
+    } catch (error: any) {
+      console.error("Programlar yüklenirken hata:", error);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
     }
   };
 
@@ -115,6 +145,15 @@ export default function EditCoursePage() {
         }
       } else {
         setDepartmentId("");
+      }
+      // Handle program
+      const prog = (course as any).program;
+      if (prog && typeof prog === "object" && prog._id) {
+        setProgramId(prog._id);
+      } else if (prog && typeof prog === "string") {
+        setProgramId(prog);
+      } else {
+        setProgramId("");
       }
       setSemester((course as any).semester || "");
 
@@ -266,6 +305,7 @@ export default function EditCoursePage() {
         code: code.trim().toUpperCase(),
         semester: semester.trim(),
         departmentId: departmentId.trim(),
+        programId: programId.trim() || null,
         description: description.trim() || undefined,
         learningOutcomes: validOutcomes.map((lo) => ({
           code: lo.code.trim(),
@@ -431,6 +471,36 @@ export default function EditCoursePage() {
                     )}
                   </div>
 
+                  {departmentId && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="program" className="text-sm">
+                        Program <span className="text-slate-400">(İsteğe Bağlı)</span>
+                      </Label>
+                      <Select
+                        id="program"
+                        value={programId}
+                        onChange={(e) => setProgramId(e.target.value)}
+                        disabled={isLoading || loadingPrograms}
+                        className="h-10 text-sm"
+                      >
+                        <option value="">Program Seçin (Opsiyonel)</option>
+                        {programs.map((prog: Program) => (
+                          <option key={prog._id} value={prog._id}>
+                            {prog.name}
+                          </option>
+                        ))}
+                      </Select>
+                      {loadingPrograms && (
+                        <p className="text-xs text-slate-500">Programlar yükleniyor...</p>
+                      )}
+                      {programs.length === 0 && !loadingPrograms && departmentId && (
+                        <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                          Bu bölüm için program bulunamadı.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-1.5">
                     <Label htmlFor="semester" className="text-sm">
                       Dönem
@@ -490,6 +560,7 @@ export default function EditCoursePage() {
                   outcomes={learningOutcomes}
                   onChange={setLearningOutcomes}
                   departmentId={departmentId}
+                  programId={programId}
                   errors={errors}
                   disabled={isLoading}
                 />

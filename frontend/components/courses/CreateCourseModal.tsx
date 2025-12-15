@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { courseApi } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 import { ExamSettingsComponent, type ExamSettings } from "@/components/courses/ExamSettings";
 import { StudentImporter, type Student } from "@/components/courses/StudentImporter";
 import { OutcomeEditor } from "@/components/courses/OutcomeEditor";
@@ -44,12 +45,15 @@ export function CreateCourseModal({
   const [isLoading, setIsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingDepartments, setLoadingDepartments] = useState(false);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
 
   // Form state
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [departmentId, setDepartmentId] = useState("");
+  const [programId, setProgramId] = useState("");
   const [semester, setSemester] = useState("");
   const [learningOutcomes, setLearningOutcomes] = useState<LearningOutcome[]>([
     { code: "ÖÇ1", description: "", programOutcomes: [] },
@@ -72,6 +76,15 @@ export function CreateCourseModal({
   useEffect(() => {
     loadDepartments();
   }, []);
+
+  useEffect(() => {
+    if (departmentId) {
+      loadPrograms(departmentId);
+    } else {
+      setPrograms([]);
+      setProgramId("");
+    }
+  }, [departmentId]);
 
   const loadDepartments = async () => {
     try {
@@ -102,11 +115,35 @@ export function CreateCourseModal({
     }
   };
 
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 Programs received:", data);
+      if (data && data.length > 0) {
+        setPrograms(data);
+        console.log(`✅ ${data.length} program(s) loaded`);
+      } else {
+        setPrograms([]);
+        console.warn("⚠️ No programs found for this department");
+      }
+    } catch (error: any) {
+      console.error("❌ Programlar yüklenirken hata:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+      toast.error("Programlar yüklenirken bir hata oluştu");
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
   const resetForm = () => {
     setName("");
     setCode("");
     setDescription("");
     setDepartmentId("");
+    setProgramId("");
     setSemester("");
     setLearningOutcomes([{ code: "ÖÇ1", description: "", programOutcomes: [] }]);
     setMidtermExam({
@@ -233,6 +270,7 @@ export function CreateCourseModal({
         code: code.trim().toUpperCase(),
         description: description.trim() || undefined,
         departmentId: departmentId,
+        programId: programId.trim(),
         semester: semester.trim() || undefined,
         learningOutcomes: validOutcomes.map((lo) => ({
           code: lo.code.trim(),
@@ -369,6 +407,45 @@ export function CreateCourseModal({
               </div>
 
               <div className="space-y-1.5">
+                <Label htmlFor="programId" className="text-sm">
+                  Program <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  id="programId"
+                  value={programId}
+                  onChange={(e) => setProgramId(e.target.value)}
+                  disabled={isLoading || loadingPrograms || !departmentId}
+                  className={`h-10 text-sm ${errors.programId ? "border-destructive" : ""}`}
+                >
+                  <option value="">
+                    {!departmentId 
+                      ? "Önce bir bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Program Seçin"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
+                    </option>
+                  ))}
+                </Select>
+                {errors.programId && (
+                  <p className="text-xs text-destructive">{errors.programId}</p>
+                )}
+                {loadingPrograms && (
+                  <p className="text-xs text-muted-foreground">Programlar yükleniyor...</p>
+                )}
+                {programs.length === 0 && !loadingPrograms && departmentId && (
+                  <p className="text-xs text-destructive">
+                    Bu bölüm için program bulunamadı. Lütfen önce bölüm için program ekleyin.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="semester" className="text-sm">Dönem</Label>
                 <Input
                   id="semester"
@@ -406,6 +483,7 @@ export function CreateCourseModal({
                 outcomes={learningOutcomes}
                 onChange={setLearningOutcomes}
                 departmentId={departmentId}
+                programId={programId}
                 errors={errors}
                 disabled={isLoading}
               />

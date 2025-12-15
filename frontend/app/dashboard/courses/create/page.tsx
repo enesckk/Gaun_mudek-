@@ -16,12 +16,15 @@ import { ExamSettingsComponent, type ExamSettings } from "@/components/courses/E
 import { StudentImporter, type Student } from "@/components/courses/StudentImporter";
 import { courseApi } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 export default function CreateCoursePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingDepartments, setLoadingDepartments] = useState(false);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     courseInfo: true,
     learningOutcomes: true,
@@ -33,6 +36,7 @@ export default function CreateCoursePage() {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [departmentId, setDepartmentId] = useState("");
+  const [programId, setProgramId] = useState("");
   const [semester, setSemester] = useState("");
   const [description, setDescription] = useState("");
 
@@ -67,6 +71,15 @@ export default function CreateCoursePage() {
     loadDepartments();
   }, []);
 
+  useEffect(() => {
+    if (departmentId) {
+      loadPrograms(departmentId);
+    } else {
+      setPrograms([]);
+      setProgramId("");
+    }
+  }, [departmentId]);
+
   const loadDepartments = async () => {
     try {
       setLoadingDepartments(true);
@@ -84,6 +97,29 @@ export default function CreateCoursePage() {
       setDepartments([]);
     } finally {
       setLoadingDepartments(false);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 Programs received:", data);
+      if (data && data.length > 0) {
+        setPrograms(data);
+        console.log(`✅ ${data.length} program(s) loaded`);
+      } else {
+        setPrograms([]);
+        console.warn("⚠️ No programs found for this department");
+      }
+    } catch (error: any) {
+      console.error("❌ Programlar yüklenirken hata:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+      toast.error("Programlar yüklenirken bir hata oluştu");
+    } finally {
+      setLoadingPrograms(false);
     }
   };
 
@@ -196,6 +232,7 @@ export default function CreateCoursePage() {
         code: code.trim().toUpperCase(),
         semester: semester.trim(),
         departmentId: departmentId.trim(),
+        programId: programId.trim(),
         description: description.trim() || undefined,
         learningOutcomes: learningOutcomes
           .filter((lo) => lo.code.trim() && lo.description.trim())
@@ -220,7 +257,9 @@ export default function CreateCoursePage() {
         })),
       };
 
+      console.log("Create Course - Payload:", payload); // Debug log
       const response = await courseApi.createCourse(payload);
+      console.log("Create Course - Response:", response.data); // Debug log
       if (response.data?.success) {
         toast.success("Ders başarıyla oluşturuldu");
         router.push("/dashboard/courses");
@@ -356,6 +395,50 @@ export default function CreateCoursePage() {
                   )}
                 </div>
 
+                <div ref={(el) => { errorRefs.current.program = el; }} className="space-y-3">
+                  <Label htmlFor="program" className="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                    Program <span className="text-red-500 font-bold">*</span>
+                  </Label>
+                  <Select
+                    id="program"
+                    value={programId}
+                    onChange={(e) => setProgramId(e.target.value)}
+                    disabled={loadingPrograms || !departmentId}
+                    className={`h-14 text-lg border-2 transition-all ${
+                      errors.program
+                        ? "border-[#bf1e1d] focus:border-[#bf1e1d] focus:ring-[#bf1e1d]/20"
+                        : !departmentId
+                        ? "border-gray-200 bg-gray-50 cursor-not-allowed"
+                        : "border-gray-300 focus:border-[#0a294e] focus:ring-[#0a294e]/20"
+                    } rounded-xl shadow-sm`}
+                  >
+                    <option value="">
+                      {!departmentId ? "Önce bir bölüm seçin" : "Program Seçin"}
+                    </option>
+                    {programs.map((prog) => (
+                      <option key={prog._id} value={prog._id}>
+                        {prog.name} {prog.code ? `(${prog.code})` : ""}
+                      </option>
+                    ))}
+                  </Select>
+                  {errors.program && (
+                    <p className="text-sm font-medium text-red-600 bg-red-50 p-2 rounded-lg">{errors.program}</p>
+                  )}
+                  {loadingPrograms && (
+                    <p className="text-sm text-slate-500">Programlar yükleniyor...</p>
+                  )}
+                  {programs.length === 0 && !loadingPrograms && departmentId && (
+                    <p className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                      Bu bölüm için program bulunamadı. Lütfen önce bölüm için program ekleyin.
+                    </p>
+                  )}
+                  {!departmentId && (
+                    <p className="text-sm text-slate-400 bg-slate-50 p-2 rounded-lg">
+                      Program seçmek için önce bir bölüm seçin.
+                    </p>
+                  )}
+                </div>
+
                 <div ref={(el) => { errorRefs.current.semester = el; }} className="space-y-3">
                   <Label htmlFor="semester" className="text-lg font-semibold text-slate-700 flex items-center gap-2">
                     Dönem <span className="text-red-500 font-bold">*</span>
@@ -424,6 +507,7 @@ export default function CreateCoursePage() {
                     outcomes={learningOutcomes}
                     onChange={setLearningOutcomes}
                     departmentId={departmentId}
+                    programId={programId}
                     errors={errors}
                   />
                 </div>

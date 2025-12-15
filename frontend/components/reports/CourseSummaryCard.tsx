@@ -70,15 +70,15 @@ export function CourseSummaryCard({
   };
 
   const getTrendIcon = (percentage: number) => {
-    if (percentage >= 80) return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (percentage >= 60) return <Minus className="h-4 w-4 text-yellow-600" />;
-    return <TrendingDown className="h-4 w-4 text-red-600" />;
+    if (percentage >= 80) return <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />;
+    if (percentage >= 60) return <Minus className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />;
+    return <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />;
   };
 
   return (
-    <Card className="border-2 border-[#0a294e]/20">
+    <Card className="border-2 border-[#0a294e]/20 dark:border-slate-700">
       <CardHeader>
-        <CardTitle className="text-2xl text-[#0a294e]">Ders Genel Başarı Özeti</CardTitle>
+        <CardTitle className="text-2xl text-[#0a294e] dark:text-foreground">Ders Genel Başarı Özeti</CardTitle>
         <CardDescription className="text-base">
           Öğrenme Çıktıları ve Program Çıktıları için genel performans göstergeleri
         </CardDescription>
@@ -141,14 +141,14 @@ export function CourseSummaryCard({
               </Badge>
             </div>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                <span className="text-sm font-medium">Ortalama Başarı</span>
+              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-slate-800 rounded-lg">
+                <span className="text-sm font-medium text-foreground">Ortalama Başarı</span>
                 <div className="flex items-center gap-2">
                   {getTrendIcon(avgPO)}
-                  <span className="text-lg font-bold">{avgPO.toFixed(1)}%</span>
+                  <span className="text-lg font-bold text-foreground">{avgPO.toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full ${getStatusColor(avgPO)}`}
                   style={{ width: `${Math.min(avgPO, 100)}%` }}

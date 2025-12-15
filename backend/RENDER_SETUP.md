@@ -67,3 +67,4 @@ curl https://gaun-mudek.onrender.com/api/health
 ```
 
 `{status:"OK"}` dönmeli.
+

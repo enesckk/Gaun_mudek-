@@ -1,5 +1,6 @@
 import Student from "../models/Student.js";
 import Score from "../models/Score.js";
+import { createNotification } from "./notificationController.js";
 
 // Create a new Student
 const createStudent = async (req, res) => {
@@ -49,6 +50,23 @@ const createStudent = async (req, res) => {
     });
 
     const savedStudent = await student.save();
+
+    // Create notification for new student
+    try {
+      await createNotification({
+        type: "student_added",
+        title: "Yeni Öğrenci Eklendi",
+        message: `${name} (${studentNumber}) sisteme eklendi.`,
+        link: `/students/${savedStudent._id}`,
+        metadata: {
+          studentId: savedStudent._id.toString(),
+          studentNumber,
+          name,
+        },
+      });
+    } catch (notifError) {
+      console.error("Failed to create student notification:", notifError);
+    }
 
     // Transform department ID to name for response
     const studentObj = savedStudent.toObject();

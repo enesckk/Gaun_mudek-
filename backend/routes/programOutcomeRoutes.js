@@ -1,7 +1,9 @@
 import express from "express";
 import {
+  getProgramOutcomesByProgram,
   getProgramOutcomesByDepartment,
   addProgramOutcome,
+  addProgramOutcomeToDepartment,
   updateProgramOutcomes,
   deleteProgramOutcome as deletePO,
   // Legacy endpoints (kept for backward compatibility)
@@ -14,18 +16,25 @@ import {
 
 const router = express.Router();
 
-// Department-based PÇ management
+// Program-based PÇ management (new - preferred)
+// GET /api/program-outcomes/program/:programId
+router.get("/program/:programId", getProgramOutcomesByProgram);
+
+// POST /api/program-outcomes/program/:programId/add
+router.post("/program/:programId/add", addProgramOutcome);
+
+// PUT /api/program-outcomes/program/:programId/update
+router.put("/program/:programId/update", updateProgramOutcomes);
+
+// DELETE /api/program-outcomes/program/:programId/delete
+router.delete("/program/:programId/delete", deletePO);
+
+// Department-based PÇ management (legacy - for backward compatibility)
 // GET /api/program-outcomes/:departmentId
 router.get("/:departmentId", getProgramOutcomesByDepartment);
 
 // POST /api/program-outcomes/:departmentId/add
-router.post("/:departmentId/add", addProgramOutcome);
-
-// PUT /api/program-outcomes/:departmentId/update
-router.put("/:departmentId/update", updateProgramOutcomes);
-
-// DELETE /api/program-outcomes/:departmentId/delete
-router.delete("/:departmentId/delete", deletePO);
+router.post("/:departmentId/add", addProgramOutcomeToDepartment);
 
 // Legacy endpoints (for backward compatibility)
 router.post("/", createProgramOutcome);

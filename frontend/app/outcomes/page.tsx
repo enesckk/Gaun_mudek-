@@ -14,6 +14,7 @@ import { OutcomeTable } from "@/components/outcomes/OutcomeTable";
 import { learningOutcomeApi, type LearningOutcome } from "@/lib/api/learningOutcomeApi";
 import { courseApi, type Course } from "@/lib/api/courseApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
 
 export default function OutcomesPage() {
   const router = useRouter();
@@ -21,8 +22,11 @@ export default function OutcomesPage() {
   const [filteredOutcomes, setFilteredOutcomes] = useState<LearningOutcome[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,15 +37,31 @@ export default function OutcomesPage() {
 
   useEffect(() => {
     if (selectedDepartmentId) {
-      loadCoursesByDepartment(selectedDepartmentId);
+      loadPrograms(selectedDepartmentId);
+      if (!selectedProgramId) {
+        loadCoursesByDepartment(selectedDepartmentId);
+      }
     } else {
+      setPrograms([]);
+      setSelectedProgramId("");
+      setSelectedCourseId("");
       loadAllCourses();
     }
   }, [selectedDepartmentId]);
 
   useEffect(() => {
+    if (selectedProgramId) {
+      loadCoursesByProgram(selectedProgramId);
+    } else if (selectedDepartmentId) {
+      loadCoursesByDepartment(selectedDepartmentId);
+    } else {
+      loadAllCourses();
+    }
+  }, [selectedProgramId, selectedDepartmentId]);
+
+  useEffect(() => {
     applyFilters();
-  }, [searchQuery, selectedDepartmentId, selectedCourseId, outcomes]);
+  }, [searchQuery, selectedDepartmentId, selectedProgramId, selectedCourseId, outcomes]);
 
   const loadDepartments = async () => {
     try {
@@ -49,6 +69,23 @@ export default function OutcomesPage() {
       setDepartments(data);
     } catch (error: any) {
       console.error("Bölümler yüklenemedi:", error);
+    }
+  };
+
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      console.log("🔍 [Outcomes Page] Loading programs for department:", deptId);
+      const data = await programApi.getAll(deptId);
+      console.log("📦 [Outcomes Page] Programs received:", data);
+      setPrograms(data || []);
+      console.log(`✅ [Outcomes Page] ${data?.length || 0} program(s) loaded`);
+    } catch (error: any) {
+      console.error("❌ [Outcomes Page] Programlar yüklenemedi:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
     }
   };
 
@@ -64,12 +101,34 @@ export default function OutcomesPage() {
   const loadCoursesByDepartment = async (departmentId: string) => {
     try {
       const allCourses = await courseApi.getAll();
-      const deptCourses = allCourses.filter((course: any) => 
-        course.department?._id === departmentId || course.department === departmentId
-      );
+      const deptCourses = allCourses.filter((course: any) => {
+        const deptId = typeof course.department === "object" && course.department !== null
+          ? (course.department as any)._id
+          : course.department;
+        return deptId === departmentId;
+      });
       setCourses(deptCourses);
       // Reset course selection if selected course is not in new list
       if (selectedCourseId && !deptCourses.find((c: any) => c._id === selectedCourseId)) {
+        setSelectedCourseId("");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      if (selectedCourseId && !programCourses.find((c: any) => c._id === selectedCourseId)) {
         setSelectedCourseId("");
       }
     } catch (error: any) {
@@ -85,6 +144,19 @@ export default function OutcomesPage() {
       filtered = filtered.filter((outcome: any) => {
         const deptId = outcome.department?._id || outcome.department;
         return deptId === selectedDepartmentId;
+      });
+    }
+
+    // Filter by program
+    if (selectedProgramId) {
+      filtered = filtered.filter((outcome: any) => {
+        const course = outcome.course;
+        if (!course) return false;
+        const progId =
+          typeof course.program === "object" && course.program !== null
+            ? (course.program as any)._id
+            : course.program;
+        return progId === selectedProgramId;
       });
     }
 
@@ -207,7 +279,7 @@ export default function OutcomesPage() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Label className="text-sm font-medium">Filtreler</Label>
-              {(selectedDepartmentId || selectedCourseId || searchQuery.trim() !== "") && (
+              {(selectedDepartmentId || selectedProgramId || selectedCourseId || searchQuery.trim() !== "") && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -220,7 +292,7 @@ export default function OutcomesPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Department Filter */}
               <div className="space-y-2">
                 <Label htmlFor="department-filter" className="text-sm font-medium">
@@ -236,6 +308,33 @@ export default function OutcomesPage() {
                   {departments.map((dept) => (
                     <option key={dept._id} value={dept._id}>
                       {dept.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Program Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="program-filter" className="text-sm font-medium">
+                  Program
+                </Label>
+                <Select
+                  id="program-filter"
+                  value={selectedProgramId}
+                  onChange={(e) => setSelectedProgramId(e.target.value)}
+                  disabled={!selectedDepartmentId || loadingPrograms}
+                  className="h-10 text-sm"
+                >
+                  <option value="">
+                    {!selectedDepartmentId 
+                      ? "Önce bölüm seçin" 
+                      : loadingPrograms
+                      ? "Yükleniyor..."
+                      : "Tüm Programlar"}
+                  </option>
+                  {programs.map((prog) => (
+                    <option key={prog._id} value={prog._id}>
+                      {prog.name} {prog.code ? `(${prog.code})` : ""}
                     </option>
                   ))}
                 </Select>
@@ -281,7 +380,7 @@ export default function OutcomesPage() {
             </div>
 
             {/* Active Filters Badges */}
-            {(selectedDepartmentId || selectedCourseId || searchQuery.trim() !== "") && (
+            {(selectedDepartmentId || selectedProgramId || selectedCourseId || searchQuery.trim() !== "") && (
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
                 <span className="text-xs text-muted-foreground">Aktif Filtreler:</span>
                 {selectedDepartmentId && (
@@ -289,6 +388,17 @@ export default function OutcomesPage() {
                     Bölüm: {departments.find(d => d._id === selectedDepartmentId)?.name}
                     <button
                       onClick={() => setSelectedDepartmentId("")}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {selectedProgramId && (
+                  <Badge variant="secondary" className="text-xs">
+                    Program: {programs.find(p => p._id === selectedProgramId)?.name || selectedProgramId}
+                    <button
+                      onClick={() => setSelectedProgramId("")}
                       className="ml-2 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />

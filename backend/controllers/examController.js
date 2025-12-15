@@ -8,6 +8,7 @@ import Score from "../models/Score.js";
 import StudentExamResult from "../models/StudentExamResult.js";
 import Batch from "../models/Batch.js";
 import Question from "../models/Question.js";
+import { createNotification } from "./notificationController.js";
 import { pdfToPng } from "../utils/pdfToPng.js";
 import { detectMarkers } from "../utils/markerDetect.js";
 import { warpAndDefineROIs, cropROI } from "../utils/roiCrop.js";
@@ -741,7 +742,7 @@ const startBatchScore = async (req, res) => {
           console.log(`✅ Student result saved/updated: ${studentNumber} - Exam: ${examId}`);
 
           // MongoDB'de batch'i güncelle (atomic update)
-          await Batch.findOneAndUpdate(
+          const updateResult = await Batch.findOneAndUpdate(
             { batchId },
             {
               $inc: { 
@@ -759,8 +760,10 @@ const startBatchScore = async (req, res) => {
             { new: true }
           );
         } catch (error) {
+          console.error(`❌ [Batch] Error processing file ${file?.originalname || 'unknown'}:`, error.message);
+          
           // MongoDB'de batch'i güncelle (hata durumu)
-          await Batch.findOneAndUpdate(
+          const failedBatch = await Batch.findOneAndUpdate(
             { batchId },
             {
               $inc: { 
@@ -777,6 +780,27 @@ const startBatchScore = async (req, res) => {
             },
             { new: true }
           );
+
+          // Create error notification if batch has significant failures
+          if (failedBatch && failedBatch.failedCount > 0 && failedBatch.failedCount % 5 === 0) {
+            try {
+              await createNotification({
+                type: "error",
+                title: "Toplu İşlem Hatası",
+                message: `${failedBatch.failedCount} dosya işlenirken hata oluştu. Toplam ${failedBatch.processedCount}/${failedBatch.totalFiles} işlendi.`,
+                link: `/dashboard/exams/${examId}/batch-upload`,
+                metadata: {
+                  batchId,
+                  examId,
+                  failedCount: failedBatch.failedCount,
+                  processedCount: failedBatch.processedCount,
+                  totalFiles: failedBatch.totalFiles,
+                },
+              });
+            } catch (notifError) {
+              console.error("Failed to create error notification:", notifError);
+            }
+          }
         }
       });
 
@@ -793,6 +817,25 @@ const startBatchScore = async (req, res) => {
             completedAt: new Date(),
           }
         );
+
+        // Create notification for batch completion
+        try {
+          await createNotification({
+            type: "batch_complete",
+            title: "Toplu İşlem Tamamlandı",
+            message: `${finalBatch.totalFiles} dosya işlendi. ${finalBatch.successCount} başarılı, ${finalBatch.failedCount} başarısız.`,
+            link: `/dashboard/exams/${examId}/batch-upload`,
+            metadata: {
+              batchId,
+              examId,
+              totalFiles: finalBatch.totalFiles,
+              successCount: finalBatch.successCount,
+              failedCount: finalBatch.failedCount,
+            },
+          });
+        } catch (notifError) {
+          console.error("Failed to create batch completion notification:", notifError);
+        }
       }
     });
 

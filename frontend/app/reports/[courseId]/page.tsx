@@ -222,7 +222,7 @@ export default function CourseReportPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Ders Kodu</p>
-                <p className="text-2xl font-bold text-slate-900">{course.code}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{course.code}</p>
                 <p className="text-sm text-muted-foreground mt-1">{course.name}</p>
               </div>
               <div className="p-3 bg-[#0a294e]/10 rounded-lg">
@@ -237,11 +237,11 @@ export default function CourseReportPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Öğrenciler</p>
-                <p className="text-2xl font-bold text-slate-900">{students.length}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{students.length}</p>
                 <p className="text-sm text-muted-foreground mt-1">Kayıtlı öğrenciler</p>
               </div>
-              <div className="p-3 bg-slate-100 rounded-lg">
-                <Users className="h-6 w-6 text-slate-700" />
+              <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                <Users className="h-6 w-6 text-slate-700 dark:text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -267,11 +267,11 @@ export default function CourseReportPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Öğrenme Çıktıları</p>
-                <p className="text-2xl font-bold text-slate-900">{course.learningOutcomes?.length || 0}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{course.learningOutcomes?.length || 0}</p>
                 <p className="text-sm text-muted-foreground mt-1">Toplam ÖÇ</p>
               </div>
-              <div className="p-3 bg-slate-100 rounded-lg">
-                <Target className="h-6 w-6 text-slate-700" />
+              <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                <Target className="h-6 w-6 text-slate-700 dark:text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -284,10 +284,10 @@ export default function CourseReportPage() {
       )}
 
       {/* LO Achievement Table */}
-      <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="flex items-center gap-2 text-xl text-slate-900">
-            <TrendingUp className="h-5 w-5 text-[#0a294e]" />
+      <Card className="rounded-xl shadow-sm border-2 border-slate-200 dark:border-slate-700">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="flex items-center gap-2 text-xl text-slate-900 dark:text-foreground">
+            <TrendingUp className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
             Öğrenme Çıktıları (ÖÇ) Başarı Detayları
           </CardTitle>
           <CardDescription className="text-sm">
@@ -331,9 +331,9 @@ export default function CourseReportPage() {
 
       {/* PO Achievement Table */}
       <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="flex items-center gap-2 text-xl text-slate-900">
-            <BarChart3 className="h-5 w-5 text-[#0a294e]" />
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="flex items-center gap-2 text-xl text-slate-900 dark:text-foreground">
+            <BarChart3 className="h-5 w-5 text-[#0a294e] dark:text-foreground" />
             Program Çıktıları (PÇ) Başarı Detayları
           </CardTitle>
           <CardDescription className="text-sm">

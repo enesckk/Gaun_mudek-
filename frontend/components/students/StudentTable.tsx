@@ -13,15 +13,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Student } from "@/lib/api/studentApi";
+import { type Course } from "@/lib/api/courseApi";
 import { DeleteStudentDialog } from "./DeleteStudentDialog";
 import { useState } from "react";
 
 interface StudentTableProps {
   students: Student[];
+  courses?: Course[];
   onDelete?: () => void;
 }
 
-export function StudentTable({ students, onDelete }: StudentTableProps) {
+export function StudentTable({ students, courses = [], onDelete }: StudentTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
@@ -34,6 +36,39 @@ export function StudentTable({ students, onDelete }: StudentTableProps) {
     setDeleteDialogOpen(false);
     setSelectedStudent(null);
     onDelete?.();
+  };
+
+  // Get program name for a student from their courses
+  const getStudentProgram = (student: Student): string | null => {
+    if (!courses || courses.length === 0) return null;
+    
+    // Find courses where this student is enrolled
+    const studentCourses = courses.filter((course: any) => {
+      const courseStudents = course.students || [];
+      return courseStudents.some((cs: any) => cs.studentNumber === student.studentNumber);
+    });
+    
+    if (studentCourses.length === 0) return null;
+    
+    // Get program from first course (or find most common program)
+    const firstCourse = studentCourses[0];
+    const program = (firstCourse as any).program;
+    
+    if (!program) return null;
+    
+    // Handle both object and string formats
+    if (typeof program === "object" && program !== null) {
+      // Program object with populated data
+      return program.name || program.nameEn || program.code || null;
+    }
+    
+    // If program is just an ID string, we can't get the name without additional lookup
+    // But this shouldn't happen if backend populates correctly
+    if (typeof program === "string") {
+      return null; // Can't determine name from just ID
+    }
+    
+    return null;
   };
 
   if (students.length === 0) {
@@ -53,6 +88,7 @@ export function StudentTable({ students, onDelete }: StudentTableProps) {
               <TableHead className="font-semibold text-slate-900">Öğrenci Numarası</TableHead>
               <TableHead className="font-semibold text-slate-900">İsim</TableHead>
               <TableHead className="font-semibold text-slate-900">Bölüm</TableHead>
+              <TableHead className="font-semibold text-slate-900">Program</TableHead>
               <TableHead className="font-semibold text-slate-900">Sınıf Seviyesi</TableHead>
               <TableHead className="text-right font-semibold text-slate-900">İşlemler</TableHead>
             </TableRow>
@@ -73,6 +109,15 @@ export function StudentTable({ students, onDelete }: StudentTableProps) {
                   {student.department ? (
                     <Badge variant="secondary" className="text-xs">
                       {student.department}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {getStudentProgram(student) ? (
+                    <Badge variant="outline" className="text-xs">
+                      {getStudentProgram(student)}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">-</span>

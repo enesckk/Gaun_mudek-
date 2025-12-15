@@ -38,16 +38,16 @@ export function HeatmapChart({
 
   if (students.length === 0 || learningOutcomes.length === 0) {
     return (
-      <Card className="border-2 border-slate-200">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-          <CardTitle className="text-xl text-slate-900">ÖÇ - Öğrenci Başarı Matrisi</CardTitle>
+      <Card className="border-2 border-slate-200 dark:border-slate-700">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="text-xl text-slate-900 dark:text-foreground">ÖÇ - Öğrenci Başarı Matrisi</CardTitle>
           <CardDescription className="text-sm">
             Her öğrenme çıktısı için öğrenci bazında başarı yüzdeleri
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
-            <Target className="h-12 w-12 mx-auto mb-4 text-slate-400" />
+            <Target className="h-12 w-12 mx-auto mb-4 text-slate-400 dark:text-foreground" />
             <p className="text-lg font-medium">Veri bulunamadı</p>
             <p className="text-sm mt-2">Öğrenci ve öğrenme çıktısı verileri eklendikten sonra burada görünecektir</p>
           </div>
@@ -57,9 +57,9 @@ export function HeatmapChart({
   }
 
   return (
-    <Card className="rounded-xl shadow-sm border-2 border-slate-200">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-        <CardTitle className="text-xl text-slate-900">ÖÇ - Öğrenci Başarı Matrisi</CardTitle>
+    <Card className="rounded-xl shadow-sm border-2 border-slate-200 dark:border-slate-700">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700">
+        <CardTitle className="text-xl text-slate-900 dark:text-foreground">ÖÇ - Öğrenci Başarı Matrisi</CardTitle>
         <CardDescription className="text-sm">
           Her öğrenme çıktısı için öğrenci bazında başarı yüzdeleri
         </CardDescription>
@@ -70,13 +70,13 @@ export function HeatmapChart({
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="border p-2 text-left font-medium bg-muted/50 sticky left-0 z-10">
+                  <th className="border border-border p-2 text-left font-medium bg-muted/50 dark:bg-muted text-foreground sticky left-0 z-10">
                     ÖÇ / Öğrenci
                   </th>
                   {students.map((student) => (
                     <th
                       key={student._id}
-                      className="border p-2 text-xs font-medium bg-muted/50 min-w-[80px]"
+                      className="border border-border p-2 text-xs font-medium bg-muted/50 dark:bg-muted text-foreground min-w-[80px]"
                     >
                       <div className="flex flex-col">
                         <span>{student.studentNumber}</span>
@@ -91,7 +91,7 @@ export function HeatmapChart({
               <tbody>
                 {learningOutcomes.map((lo, loIndex) => (
                   <tr key={lo._id} className={loIndex % 2 === 0 ? "bg-background" : "bg-muted/50"}>
-                    <td className="border p-2 font-medium bg-muted/50 sticky left-0 z-10">
+                    <td className="border border-border p-2 font-medium bg-muted/50 dark:bg-muted text-foreground sticky left-0 z-10">
                       {lo.code}
                     </td>
                     {students.map((student) => {
@@ -99,7 +99,7 @@ export function HeatmapChart({
                       return (
                         <td
                           key={student._id}
-                          className={`border p-2 text-center ${getHeatmapColor(value)} ${getTextColor(value)}`}
+                          className={`border border-border p-2 text-center ${getHeatmapColor(value)} ${getTextColor(value)}`}
                         >
                           <span className="font-semibold text-xs">
                             {value.toFixed(0)}%
@@ -117,19 +117,19 @@ export function HeatmapChart({
         <div className="mt-4 flex items-center justify-center gap-4 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-500 rounded" />
-            <span>0-40%</span>
+            <span className="text-foreground">0-40%</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-orange-500 rounded" />
-            <span>40-60%</span>
+            <span className="text-foreground">40-60%</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-yellow-500 rounded" />
-            <span>60-80%</span>
+            <span className="text-foreground">60-80%</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-500 rounded" />
-            <span>80-100%</span>
+            <span className="text-foreground">80-100%</span>
           </div>
         </div>
       </CardContent>

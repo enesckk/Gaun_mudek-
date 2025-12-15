@@ -48,7 +48,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
           {/* Course Details - Better Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="flex items-start gap-2 sm:gap-3 min-w-0">
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-foreground mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1 overflow-hidden">
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Dönem</p>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate" title={semester}>
@@ -58,7 +58,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
             </div>
 
             <div className="flex items-start gap-2 sm:gap-3 min-w-0">
-              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-foreground mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1 overflow-hidden">
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Öğrenme Çıktısı</p>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -68,7 +68,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
             </div>
 
             <div className="flex items-start gap-2 sm:gap-3 min-w-0">
-              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-foreground mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1 overflow-hidden">
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Öğrenci</p>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -78,7 +78,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
             </div>
 
             <div className="flex items-start gap-2 sm:gap-3 min-w-0">
-              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 dark:text-foreground mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1 overflow-hidden">
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Sınav</p>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -132,10 +132,10 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
               asChild
               variant="default"
               size="default"
-              className="flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 min-w-0"
+              className="flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 text-white min-w-0"
             >
               <Link href={`/dashboard/courses/${course._id}`} className="flex items-center justify-center min-w-0">
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0 text-white" />
                 <span className="truncate">Detay</span>
               </Link>
             </Button>
@@ -146,7 +146,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
               className="flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold min-w-0"
             >
               <Link href={`/dashboard/courses/edit/${course._id}`} className="flex items-center justify-center min-w-0">
-                <Edit className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0" />
+                <Edit className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 flex-shrink-0 text-foreground" />
                 <span className="truncate">Düzenle</span>
               </Link>
             </Button>
@@ -156,7 +156,7 @@ export function CourseCard({ course, onDelete }: CourseCardProps) {
               onClick={() => onDelete(course)}
               className="h-10 sm:h-11 text-sm sm:text-base font-semibold px-3 sm:px-4 flex-shrink-0"
             >
-              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
             </Button>
           </div>
         </div>

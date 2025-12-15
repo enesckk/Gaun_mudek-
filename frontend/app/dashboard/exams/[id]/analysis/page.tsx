@@ -112,24 +112,24 @@ export default function ExamAnalysisPage() {
           <CardTitle>Soru Bazlı Analiz</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <table className="w-full border text-sm">
-            <thead className="bg-slate-50">
+          <table className="w-full border border-border text-sm">
+            <thead className="bg-slate-50 dark:bg-muted">
               <tr>
-                <th className="p-2 border">Soru</th>
-                <th className="p-2 border">ÖÇ</th>
-                <th className="p-2 border">Ortalama</th>
-                <th className="p-2 border">Başarı %</th>
-                <th className="p-2 border">Cevap Veren</th>
+                <th className="p-2 border border-border text-foreground">Soru</th>
+                <th className="p-2 border border-border text-foreground">ÖÇ</th>
+                <th className="p-2 border border-border text-foreground">Ortalama</th>
+                <th className="p-2 border border-border text-foreground">Başarı %</th>
+                <th className="p-2 border border-border text-foreground">Cevap Veren</th>
               </tr>
             </thead>
             <tbody>
               {questionData.map((q) => (
                 <tr key={q.questionNumber} className="text-center">
-                  <td className="border p-2">{q.questionNumber}</td>
-                  <td className="border p-2">{q.learningOutcomeCode || "-"}</td>
-                  <td className="border p-2">{q.averageScore}</td>
-                  <td className="border p-2">{q.successRate}%</td>
-                  <td className="border p-2">{q.attempts}</td>
+                  <td className="border border-border p-2 text-foreground">{q.questionNumber}</td>
+                  <td className="border border-border p-2 text-foreground">{q.learningOutcomeCode || "-"}</td>
+                  <td className="border border-border p-2 text-foreground">{q.averageScore}</td>
+                  <td className="border border-border p-2 text-foreground">{q.successRate}%</td>
+                  <td className="border border-border p-2 text-foreground">{q.attempts}</td>
                 </tr>
               ))}
             </tbody>
@@ -148,12 +148,39 @@ export default function ExamAnalysisPage() {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={outcomeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="code" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="success" name="Başarı %" fill="#6366f1" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="code" 
+                  tick={{ fill: "hsl(var(--foreground))" }}
+                />
+                <YAxis 
+                  domain={[0, 100]} 
+                  tick={{ fill: "hsl(var(--foreground))" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    color: "hsl(var(--foreground))",
+                  }}
+                  itemStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
+                  labelStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: "hsl(var(--foreground))" }}
+                  iconType="square"
+                />
+                <Bar 
+                  dataKey="success" 
+                  name="Başarı %" 
+                  fill="#6366f1"
+                  style={{ fillOpacity: 1, opacity: 1 }}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -171,8 +198,11 @@ export default function ExamAnalysisPage() {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={programData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="code" />
+                <PolarGrid stroke="hsl(var(--border))" />
+                <PolarAngleAxis 
+                  dataKey="code" 
+                  tick={{ fill: "hsl(var(--foreground))" }}
+                />
                 <Radar
                   name="Başarı %"
                   dataKey="success"
@@ -180,7 +210,20 @@ export default function ExamAnalysisPage() {
                   fill="#10b981"
                   fillOpacity={0.4}
                 />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    color: "hsl(var(--foreground))",
+                  }}
+                  itemStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
+                  labelStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
+                />
               </RadarChart>
             </ResponsiveContainer>
           )}

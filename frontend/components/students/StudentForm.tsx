@@ -22,11 +22,15 @@ import {
   type UpdateStudentDto,
 } from "@/lib/api/studentApi";
 import { departmentApi, type Department } from "@/lib/api/departmentApi";
+import { programApi, type Program } from "@/lib/api/programApi";
+import { courseApi, type Course } from "@/lib/api/courseApi";
 
 const studentSchema = z.object({
   studentNumber: z.string().min(1, "Öğrenci numarası gereklidir"),
   name: z.string().min(1, "İsim gereklidir").min(2, "İsim en az 2 karakter olmalıdır"),
   department: z.string().optional(),
+  program: z.string().optional(),
+  course: z.string().optional(),
   classLevel: z.number().int().positive().max(4, "Sınıf seviyesi 1-4 arasında olmalıdır").optional().or(z.literal("")),
 });
 
@@ -48,11 +52,12 @@ export function StudentForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedProgramId, setSelectedProgramId] = useState("");
   const [loadingDepartments, setLoadingDepartments] = useState(false);
-
-  useEffect(() => {
-    loadDepartments();
-  }, []);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
 
   const loadDepartments = async () => {
     try {
@@ -66,6 +71,23 @@ export function StudentForm({
     }
   };
 
+  const loadPrograms = async (deptId: string) => {
+    try {
+      setLoadingPrograms(true);
+      const data = await programApi.getAll(deptId);
+      setPrograms(data || []);
+    } catch (error: any) {
+      console.error("Programlar yüklenemedi:", error);
+      setPrograms([]);
+    } finally {
+      setLoadingPrograms(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
+
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
     defaultValues: initialData
@@ -73,15 +95,70 @@ export function StudentForm({
           studentNumber: initialData.studentNumber,
           name: initialData.name,
           department: initialData.department || "",
+          program: "",
+          course: "",
           classLevel: initialData.classLevel || "",
         }
       : {
           studentNumber: "",
           name: "",
           department: "",
+          program: "",
+          course: "",
           classLevel: "",
         },
   });
+
+  const selectedDepartment = form.watch("department");
+  const selectedProgram = form.watch("program");
+
+  const loadCoursesByProgram = async (programId: string) => {
+    try {
+      const allCourses = await courseApi.getAll();
+      const programCourses = allCourses.filter((course: any) => {
+        const progId = typeof course.program === "object" && course.program !== null
+          ? (course.program as any)._id
+          : course.program;
+        return progId === programId;
+      });
+      setCourses(programCourses);
+      // Reset course selection if selected course is not in new list
+      const currentCourseId = form.getValues("course");
+      if (currentCourseId && !programCourses.find((c: any) => c._id === currentCourseId)) {
+        form.setValue("course", "");
+      }
+    } catch (error: any) {
+      console.error("Dersler yüklenemedi:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      // Find department ID from name
+      const department = departments.find(d => d.name === selectedDepartment);
+      if (department) {
+        setSelectedDepartmentId(department._id);
+        loadPrograms(department._id);
+      }
+    } else {
+      setSelectedDepartmentId("");
+      setPrograms([]);
+      setSelectedProgramId("");
+      form.setValue("program", "");
+      form.setValue("course", "");
+    }
+  }, [selectedDepartment, departments]);
+
+  useEffect(() => {
+    if (selectedProgram && selectedDepartmentId) {
+      setSelectedProgramId(selectedProgram);
+      loadCoursesByProgram(selectedProgram);
+    } else {
+      setSelectedProgramId("");
+      setCourses([]);
+      form.setValue("course", "");
+    }
+  }, [selectedProgram, selectedDepartmentId]);
 
   const onSubmit = async (data: StudentFormData) => {
     setIsSubmitting(true);
@@ -116,7 +193,7 @@ export function StudentForm({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Öğrenci Numarası */}
         <FormItem>
           <FormLabel htmlFor="studentNumber" className="text-sm font-semibold text-slate-700">
@@ -170,7 +247,11 @@ export function StudentForm({
               <Select
                 id="department"
                 value={form.watch("department") || ""}
-                onChange={(e) => form.setValue("department", e.target.value)}
+                onChange={(e) => {
+                  form.setValue("department", e.target.value);
+                  form.setValue("program", "");
+                  form.setValue("course", "");
+                }}
                 disabled={isSubmitting}
                 className="h-10 text-sm border-2 focus:border-[#0a294e]"
               >
@@ -187,6 +268,73 @@ export function StudentForm({
                 </p>
               )}
             </>
+          )}
+        </FormItem>
+
+        {/* Program */}
+        <FormItem>
+          <FormLabel htmlFor="program" className="text-sm font-semibold text-slate-700">
+            Program
+          </FormLabel>
+          <Select
+            id="program"
+            value={form.watch("program") || ""}
+            onChange={(e) => {
+              form.setValue("program", e.target.value);
+              form.setValue("course", "");
+            }}
+            disabled={isSubmitting || !selectedDepartment || loadingPrograms}
+            className="h-10 text-sm border-2 focus:border-[#0a294e]"
+          >
+            <option value="">
+              {!selectedDepartment 
+                ? "Önce bölüm seçin" 
+                : loadingPrograms
+                ? "Yükleniyor..."
+                : "Program seçin (isteğe bağlı)"}
+            </option>
+            {programs.map((prog) => (
+              <option key={prog._id} value={prog._id}>
+                {prog.name} {prog.code ? `(${prog.code})` : ""}
+              </option>
+            ))}
+          </Select>
+          {form.formState.errors.program && (
+            <p className="text-sm font-medium text-destructive mt-1">
+              {form.formState.errors.program.message}
+            </p>
+          )}
+        </FormItem>
+
+        {/* Ders */}
+        <FormItem>
+          <FormLabel htmlFor="course" className="text-sm font-semibold text-slate-700">
+            Ders
+          </FormLabel>
+          <Select
+            id="course"
+            value={form.watch("course") || ""}
+            onChange={(e) => form.setValue("course", e.target.value)}
+            disabled={isSubmitting || !selectedProgram || courses.length === 0}
+            className="h-10 text-sm border-2 focus:border-[#0a294e]"
+          >
+            <option value="">
+              {!selectedProgram 
+                ? "Önce program seçin" 
+                : courses.length === 0
+                ? "Bu program için ders bulunamadı"
+                : "Ders seçin (isteğe bağlı)"}
+            </option>
+            {courses.map((course) => (
+              <option key={course._id} value={course._id}>
+                {course.code} - {course.name}
+              </option>
+            ))}
+          </Select>
+          {form.formState.errors.course && (
+            <p className="text-sm font-medium text-destructive mt-1">
+              {form.formState.errors.course.message}
+            </p>
           )}
         </FormItem>
 

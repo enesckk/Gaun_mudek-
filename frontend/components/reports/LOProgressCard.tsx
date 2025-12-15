@@ -15,9 +15,9 @@ export function LOProgressCard({ achievement }: LOProgressCardProps) {
   const offset = circumference - (percentage / 100) * circumference;
 
   const getColor = (percentage: number) => {
-    if (percentage >= 80) return "text-green-600 stroke-green-500";
-    if (percentage >= 60) return "text-yellow-600 stroke-yellow-500";
-    return "text-red-600 stroke-red-500";
+    if (percentage >= 80) return "text-green-600 dark:text-green-400 stroke-green-500 dark:stroke-green-400";
+    if (percentage >= 60) return "text-yellow-600 dark:text-yellow-400 stroke-yellow-500 dark:stroke-yellow-400";
+    return "text-red-600 dark:text-red-400 stroke-red-500 dark:stroke-red-400";
   };
 
   return (
@@ -42,7 +42,7 @@ export function LOProgressCard({ achievement }: LOProgressCardProps) {
                 stroke="currentColor"
                 strokeWidth="8"
                 fill="none"
-                className="text-gray-200"
+                className="text-gray-200 dark:text-slate-700"
               />
               <circle
                 cx="60"
@@ -55,6 +55,9 @@ export function LOProgressCard({ achievement }: LOProgressCardProps) {
                 strokeDashoffset={offset}
                 strokeLinecap="round"
                 className={`transition-all duration-500 ${getColor(percentage).split(" ")[1]}`}
+                style={{
+                  stroke: percentage >= 80 ? "#22c55e" : percentage >= 60 ? "#eab308" : "#ef4444"
+                }}
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">

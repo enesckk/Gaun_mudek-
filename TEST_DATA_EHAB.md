@@ -111,7 +111,7 @@ Frontend'de: **Derslerim** → **Yeni Ders Ekle**
 
 ---
 
-## 4️⃣ ÖÇ-PÇ Eşleştirmesi (MÜDEK Matrisi)
+## 4️⃣ ÖÇ-PÇ Eşleştirmesi (MEDEK Matrisi)
 
 Ders detay sayfasında: **MÜDEK Matrisi** sekmesine git
 
@@ -189,8 +189,10 @@ Frontend'de: **Sınavlar** → **Yeni Sınav Ekle**
 ## 📌 Önemli Notlar
 
 1. **PÇ Eşleştirmesi Zorunlu**: ÖÇ'lerin PÇ'lere eşlenmesi gerekiyor, yoksa raporlarda PÇ sayısı 0 gözükür
-2. **MÜDEK Matrisi**: Ders detay sayfasında "MÜDEK Matrisi" sekmesinden ÖÇ-PÇ eşleştirmesini yapın
+2. **MEDEK Matrisi**: Ders detay sayfasında "MEDEK Matrisi" sekmesinden ÖÇ-PÇ eşleştirmesini yapın
 3. **Sınav Puanları**: Test için en az bir öğrenciye sınav puanı girin (tek PDF yükleme veya toplu puan girişi)
+
+
 
 
 

@@ -268,20 +268,20 @@ export default function DashboardCoursesPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            
-            <p className="text-muted-foreground text-base">
+            <p className="text-muted-foreground text-sm sm:text-base">
               Oluşturduğunuz derslerin listesi
             </p>
           </div>
           <Button
             size="lg"
             onClick={() => setCreateModalOpen(true)}
-            className="h-12 text-base px-6 font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 text-white shadow-lg hover:shadow-xl transition-all"
+            className="w-full sm:w-auto h-11 sm:h-12 text-sm sm:text-base px-4 sm:px-6 font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 text-white shadow-lg hover:shadow-xl transition-all"
           >
-            <Plus className="h-5 w-5 mr-2" />
-            Yeni Ders Oluştur
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <span className="hidden sm:inline">Yeni Ders Oluştur</span>
+            <span className="sm:hidden">Yeni Ders</span>
           </Button>
         </div>
 

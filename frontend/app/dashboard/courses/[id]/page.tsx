@@ -87,49 +87,54 @@ export default function CourseDetailPage() {
   const programId = typeof program === "object" && program !== null ? program?._id : (typeof program === "string" ? program : null);
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-3 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => router.push("/dashboard/courses")}
-              className="h-10 w-10"
+              className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight text-foreground">{course.name}</h1>
-              <p className="text-muted-foreground text-lg mt-1">
-                Kod: {course.code} | Bölüm: {departmentName}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-foreground truncate">{course.name}</h1>
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg mt-1 break-words">
+                <span className="whitespace-nowrap">Kod: {course.code}</span>
+                <span className="hidden sm:inline"> | </span>
+                <span className="block sm:inline sm:ml-0">Bölüm: {departmentName}</span>
               </p>
             </div>
           </div>
           <Button
             onClick={() => router.push(`/dashboard/courses/edit/${courseId}`)}
-            className="h-12 px-6 bg-[#0a294e] hover:bg-[#0a294e]/90 text-white"
+            className="h-10 sm:h-12 px-4 sm:px-6 bg-[#0a294e] hover:bg-[#0a294e]/90 text-white text-sm sm:text-base w-full sm:w-auto"
           >
-            <Edit className="h-5 w-5 mr-2" />
+            <Edit className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Düzenle
           </Button>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 h-14">
-            <TabsTrigger value="overview" className="text-base font-semibold">
-              <FileText className="h-5 w-5 mr-2" />
-              Genel Bakış
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-3 h-auto sm:h-14 p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm md:text-base font-semibold py-2 sm:py-0">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Genel Bakış</span>
+              <span className="sm:hidden">Genel</span>
             </TabsTrigger>
-            <TabsTrigger value="mapping" className="text-base font-semibold">
-              <Target className="h-5 w-5 mr-2" />
-              ÖÇ → PÇ Eşlemesi
+            <TabsTrigger value="mapping" className="text-xs sm:text-sm md:text-base font-semibold py-2 sm:py-0">
+              <Target className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">ÖÇ → PÇ Eşlemesi</span>
+              <span className="sm:hidden">Eşleme</span>
             </TabsTrigger>
-            <TabsTrigger value="matrix" className="text-base font-semibold">
-              <GraduationCap className="h-5 w-5 mr-2" />
-              MÜDEK Matrisi
+            <TabsTrigger value="matrix" className="text-xs sm:text-sm md:text-base font-semibold py-2 sm:py-0">
+              <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">MEDEK Matrisi</span>
+              <span className="sm:hidden">Matris</span>
             </TabsTrigger>
           </TabsList>
 
@@ -169,25 +174,25 @@ export default function CourseDetailPage() {
               </Card>
 
               <Card className="border-2 border-[#0a294e]/20">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-[#0a294e]">İstatistikler</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl md:text-2xl text-[#0a294e]">İstatistikler</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
                   <div>
-                    <p className="text-sm text-muted-foreground">Öğrenme Çıktısı Sayısı</p>
-                    <p className="text-3xl font-bold text-[#0a294e]">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Öğrenme Çıktısı Sayısı</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#0a294e]">
                       {course.learningOutcomes?.length || 0}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Öğrenci Sayısı</p>
-                    <p className="text-3xl font-bold text-[#0a294e]">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Öğrenci Sayısı</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#0a294e]">
                       {course.students?.length || 0}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Toplam Sınav Sayısı</p>
-                    <p className="text-3xl font-bold text-[#0a294e]">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Toplam Sınav Sayısı</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#0a294e]">
                       {exams.length}
                     </p>
                   </div>
@@ -250,17 +255,17 @@ export default function CourseDetailPage() {
             {/* Students List */}
             {course.students && course.students.length > 0 && (
               <Card className="border-2 border-[#0a294e]/20">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-[#0a294e] flex items-center gap-2">
-                    <Users className="h-6 w-6" />
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl md:text-2xl text-[#0a294e] flex items-center gap-2">
+                    <Users className="h-5 w-5 sm:h-6 sm:w-6" />
                     Öğrenci Listesi
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Bu derse kayıtlı {course.students.length} öğrenci
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-2 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
                     {course.students.map((courseStudent, index) => {
                       const student = students.find(s => s.studentNumber === courseStudent.studentNumber);
                       const studentId = student?._id;
@@ -269,7 +274,7 @@ export default function CourseDetailPage() {
                       return (
                         <div
                           key={index}
-                          className="p-3 border border-gray-200 rounded-lg hover:border-[#0a294e]/30 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer"
+                          className="p-2 sm:p-3 border border-gray-200 rounded-lg hover:border-[#0a294e]/30 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2 cursor-pointer"
                           onClick={() => {
                             if (studentId) {
                               router.push(`/students/${studentId}`);
@@ -278,15 +283,15 @@ export default function CourseDetailPage() {
                             }
                           }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#0a294e]/10 flex items-center justify-center">
-                              <span className="text-sm font-semibold text-[#0a294e]">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0a294e]/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs sm:text-sm font-semibold text-[#0a294e]">
                                 {index + 1}
                               </span>
                             </div>
-                            <div>
-                              <p className="font-medium text-base">{studentName}</p>
-                              <p className="text-sm text-muted-foreground">{courseStudent.studentNumber}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm sm:text-base truncate">{studentName}</p>
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">{courseStudent.studentNumber}</p>
                             </div>
                           </div>
                           <Button
@@ -300,7 +305,7 @@ export default function CourseDetailPage() {
                                 router.push(`/students?search=${courseStudent.studentNumber}`);
                               }
                             }}
-                            className="text-[#0a294e] hover:text-[#0a294e]/80"
+                            className="text-[#0a294e] hover:text-[#0a294e]/80 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 flex-shrink-0"
                           >
                             Detay
                           </Button>
@@ -315,28 +320,28 @@ export default function CourseDetailPage() {
             {/* Learning Outcomes List */}
             {course.learningOutcomes && course.learningOutcomes.length > 0 && (
               <Card className="border-2 border-[#0a294e]/20">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-[#0a294e]">Öğrenme Çıktıları (ÖÇ)</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg sm:text-xl md:text-2xl text-[#0a294e]">Öğrenme Çıktıları (ÖÇ)</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-3 sm:space-y-4">
                     {course.learningOutcomes.map((lo, index) => (
                       <div
                         key={index}
-                        className="p-4 border-2 border-gray-200 rounded-xl hover:border-[#0a294e]/30 transition-colors"
+                        className="p-3 sm:p-4 border-2 border-gray-200 rounded-xl hover:border-[#0a294e]/30 transition-colors"
                       >
-                        <div className="flex items-start gap-3">
-                          <Badge variant="default" className="bg-[#0a294e] text-white text-base px-3 py-1">
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                          <Badge variant="default" className="bg-[#0a294e] text-white text-sm sm:text-base px-2 sm:px-3 py-1 w-fit">
                             {lo.code}
                           </Badge>
-                          <p className="text-lg flex-1">{lo.description}</p>
+                          <p className="text-sm sm:text-base md:text-lg flex-1 break-words">{lo.description}</p>
                         </div>
                         {(lo as any).programOutcomes && (lo as any).programOutcomes.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-gray-200">
-                            <p className="text-sm text-muted-foreground mb-2">İlişkili Program Çıktıları:</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground mb-2">İlişkili Program Çıktıları:</p>
                             <div className="flex flex-wrap gap-2">
                               {(lo as any).programOutcomes.map((poCode: string) => (
-                                <Badge key={poCode} variant="outline" className="text-sm">
+                                <Badge key={poCode} variant="outline" className="text-xs sm:text-sm">
                                   {poCode}
                                 </Badge>
                               ))}
@@ -371,7 +376,7 @@ export default function CourseDetailPage() {
             )}
           </TabsContent>
 
-          {/* MÜDEK Matrix Tab */}
+          {/* MEDEK Matrix Tab */}
           <TabsContent value="matrix">
             {departmentId ? (
               <MudekMatrixView
@@ -384,7 +389,7 @@ export default function CourseDetailPage() {
               <Card className="border-2 border-yellow-200">
                 <CardContent className="p-8 text-center">
                   <p className="text-lg text-muted-foreground">
-                    Bu ders için bölüm bilgisi bulunamadı. MÜDEK matrisi görüntülemek için lütfen dersi düzenleyip bölüm seçin.
+                    Bu ders için bölüm bilgisi bulunamadı. MEDEK matrisi görüntülemek için lütfen dersi düzenleyip bölüm seçin.
                   </p>
                 </CardContent>
               </Card>

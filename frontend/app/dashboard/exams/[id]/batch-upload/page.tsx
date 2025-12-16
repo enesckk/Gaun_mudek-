@@ -137,14 +137,14 @@ export default function BatchUploadPage() {
   }, [status]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => router.back()}
-            className="h-10 w-10"
+            className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -155,17 +155,22 @@ export default function BatchUploadPage() {
           </p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => router.push(`/dashboard/exams/${examId}/results`)}>
-          Değerlendirme Sonuçlarını Görüntüle
+        <Button 
+          variant="outline" 
+          onClick={() => router.push(`/dashboard/exams/${examId}/results`)}
+          className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm w-full sm:w-auto"
+        >
+          <span className="hidden sm:inline">Değerlendirme Sonuçlarını Görüntüle</span>
+          <span className="sm:hidden">Sonuçları Gör</span>
         </Button>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>PDF Yükle</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg md:text-xl">PDF Yükle</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <label className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-slate-50">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
+          <label className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg p-4 sm:p-6 md:p-8 text-center cursor-pointer hover:bg-slate-50 transition-colors">
             <UploadCloud className="h-8 w-8 text-slate-500 mb-2" />
             <span className="text-sm text-slate-600">
               PDF’leri buraya sürükleyin veya seçin (çoklu seçim)
@@ -181,13 +186,13 @@ export default function BatchUploadPage() {
           </label>
 
           {files.length > 0 && (
-            <div className="border rounded-lg p-3 max-h-64 overflow-auto text-sm">
-              <div className="font-semibold mb-2">Seçilen dosyalar ({files.length}):</div>
+            <div className="border rounded-lg p-2 sm:p-3 max-h-48 sm:max-h-64 overflow-auto text-xs sm:text-sm">
+              <div className="font-semibold mb-2 text-xs sm:text-sm">Seçilen dosyalar ({files.length}):</div>
               <ul className="space-y-1">
                 {files.map((f) => (
-                  <li key={f.name} className="flex justify-between">
-                    <span>{f.name}</span>
-                    <span className="text-slate-500">{(f.size / 1024).toFixed(1)} KB</span>
+                  <li key={f.name} className="flex justify-between items-center gap-2 break-words">
+                    <span className="truncate flex-1 min-w-0">{f.name}</span>
+                    <span className="text-slate-500 text-xs flex-shrink-0 whitespace-nowrap">{(f.size / 1024).toFixed(1)} KB</span>
                   </li>
                 ))}
               </ul>
@@ -197,14 +202,17 @@ export default function BatchUploadPage() {
           <Button
             onClick={handleStart}
             disabled={isUploading || Boolean(batchId) || files.length === 0}
-            className="h-11 px-6"
+            className="h-10 sm:h-11 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
           >
             {isUploading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Başlatılıyor...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> <span className="hidden sm:inline">Başlatılıyor...</span><span className="sm:hidden">Yükleniyor...</span>
               </>
             ) : (
-              "Toplu Puanlamayı Başlat"
+              <>
+                <span className="hidden sm:inline">Toplu Puanlamayı Başlat</span>
+                <span className="sm:hidden">Başlat</span>
+              </>
             )}
           </Button>
         </CardContent>
@@ -212,9 +220,9 @@ export default function BatchUploadPage() {
 
       {batchId && status && status.processedCount < status.totalFiles && (
         <Card className="border-2 border-blue-200 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-blue-600 flex-shrink-0" />
               <span>Hesaplanıyor...</span>
             </CardTitle>
           </CardHeader>
@@ -223,42 +231,58 @@ export default function BatchUploadPage() {
 
       {status && (
         <Card>
-          <CardHeader>
-            <CardTitle>İlerleme</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg md:text-xl">İlerleme</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span>Toplam: {status.totalFiles}</span>
-              <span>İşlenen: {status.processedCount}</span>
-              <span className="text-emerald-600">Başarılı: {status.successCount}</span>
-              <span className="text-red-600">Başarısız: {status.failedCount}</span>
+          <CardContent className="space-y-3 p-4 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Toplam</span>
+                <span className="font-semibold">{status.totalFiles}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">İşlenen</span>
+                <span className="font-semibold">{status.processedCount}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Başarılı</span>
+                <span className="font-semibold text-emerald-600">{status.successCount}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground">Başarısız</span>
+                <span className="font-semibold text-red-600">{status.failedCount}</span>
+              </div>
             </div>
-            <Progress value={progress} />
-            <div className="overflow-auto max-h-72 border rounded-lg">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50">
+            <Progress value={progress} className="h-2 sm:h-3" />
+            <div className="overflow-x-auto -mx-2 sm:mx-0 max-h-64 sm:max-h-72 border rounded-lg">
+              <table className="w-full text-xs sm:text-sm min-w-[500px]">
+                <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0">
                   <tr>
-                    <th className="p-2 border">Öğrenci</th>
-                    <th className="p-2 border">Durum</th>
-                    <th className="p-2 border">Not</th>
+                    <th className="p-1.5 sm:p-2 border text-left font-medium">Öğrenci</th>
+                    <th className="p-1.5 sm:p-2 border text-center font-medium">Durum</th>
+                    <th className="p-1.5 sm:p-2 border text-left font-medium">Not</th>
                   </tr>
                 </thead>
                 <tbody>
                   {status.statuses.map((s, idx) => (
-                    <tr key={idx} className="text-center">
-                      <td className="border p-2">{s.studentNumber || "-"}</td>
-                      <td className="border p-2">
+                    <tr key={idx} className={idx % 2 === 0 ? "bg-background" : "bg-muted/30"}>
+                      <td className="border p-1.5 sm:p-2 break-words">{s.studentNumber || "-"}</td>
+                      <td className="border p-1.5 sm:p-2 text-center">
                         {s.status === "success" ? (
-                          <span className="inline-flex items-center gap-1 text-emerald-600">
-                            <CheckCircle2 className="h-4 w-4" /> Başarılı
+                          <span className="inline-flex items-center gap-1 text-emerald-600 text-xs sm:text-sm">
+                            <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                            <span className="hidden sm:inline">Başarılı</span>
+                            <span className="sm:hidden">✓</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-red-600">
-                            <XCircle className="h-4 w-4" /> Başarısız
+                          <span className="inline-flex items-center gap-1 text-red-600 text-xs sm:text-sm">
+                            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" /> 
+                            <span className="hidden sm:inline">Başarısız</span>
+                            <span className="sm:hidden">✗</span>
                           </span>
                         )}
                       </td>
-                      <td className="border p-2 text-left">{s.message || "-"}</td>
+                      <td className="border p-1.5 sm:p-2 text-left break-words">{s.message || "-"}</td>
                     </tr>
                   ))}
                 </tbody>

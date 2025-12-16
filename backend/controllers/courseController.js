@@ -155,7 +155,7 @@ const createCourse = async (req, res) => {
       }
     }
 
-    // Create Midterm Exam document (MÜDEK uyumlu yeni yapı)
+    // Create Midterm Exam document (MEDEK uyumlu yeni yapı)
     let midtermExamId = null;
     if (midtermExam && midtermExam.examCode) {
       // İlk ÖÇ'yi varsayılan olarak kullan (sorular daha sonra exam creation'da eşlenecek)
@@ -181,7 +181,7 @@ const createCourse = async (req, res) => {
       midtermExamId = savedMidterm._id;
     }
 
-    // Create Final Exam document (MÜDEK uyumlu yeni yapı)
+    // Create Final Exam document (MEDEK uyumlu yeni yapı)
     let finalExamId = null;
     if (finalExam && finalExam.examCode) {
       // İlk ÖÇ'yi varsayılan olarak kullan (sorular daha sonra exam creation'da eşlenecek)
@@ -586,7 +586,7 @@ const deleteCourse = async (req, res) => {
   }
 };
 
-// Get MÜDEK LO→PO Matrix
+// Get MEDEK LO→PO Matrix
 const getCourseMatrix = async (req, res) => {
   try {
     const { id } = req.params;

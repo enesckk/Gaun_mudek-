@@ -64,7 +64,7 @@ export function DeleteProgramOutcomeDialog({
             <strong>{programOutcomeCode}</strong> program çıktısını silmek istediğinizden emin misiniz?
             <br />
             <br />
-            Bu program çıktısını silmek MÜDEK eşleştirmelerini bozabilir. Bu işlem geri alınamaz.
+            Bu program çıktısını silmek MEDEK eşleştirmelerini bozabilir. Bu işlem geri alınamaz.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

@@ -191,7 +191,7 @@ export function MudekMatrixView({
             <div>
               <CardTitle className="text-2xl text-[#0a294e] dark:text-foreground flex items-center gap-2">
                 <Target className="h-6 w-6 text-[#0a294e] dark:text-foreground" />
-                MÜDEK ÖÇ → PÇ Eşleme Matrisi
+                MEDEK ÖÇ → PÇ Eşleme Matrisi
               </CardTitle>
               <CardDescription className="text-base mt-2">
                 Öğrenme Çıktıları (ÖÇ) ve Program Çıktıları (PÇ) arasındaki ilişki matrisi. 

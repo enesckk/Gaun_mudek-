@@ -53,7 +53,7 @@ export function DeleteQuestionDialog({
         <DialogHeader>
           <DialogTitle>Soruyu Sil</DialogTitle>
           <DialogDescription>
-            Bu soruyu silmek MÜDEK mapping'lerini bozabilir. Emin misiniz?
+            Bu soruyu silmek MEDEK mapping'lerini bozabilir. Emin misiniz?
             <br />
             <br />
             <strong>Soru #{questionNumber}</strong> kalıcı olarak silinecek. Bu işlem geri alınamaz.

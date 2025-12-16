@@ -10,7 +10,7 @@ import { SidebarProvider } from "@/components/providers/SidebarProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MÜDEK Yönetim Paneli",
+  title: "MEDEK Yönetim Paneli",
   description: "Sınav değerlendirme ve çıktı analiz sistemi",
 };
 

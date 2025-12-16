@@ -41,7 +41,7 @@ export default function LoginPage() {
         <div className="text-white space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur">
             <ShieldCheck className="h-4 w-4" />
-            <span className="text-sm font-semibold">MÜDEK Uyumlu Değerlendirme</span>
+            <span className="text-sm font-semibold">MEDEK Uyumlu Değerlendirme</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
             Eğitmenler için basit, güvenli ve hızlı sınav yönetimi.
@@ -55,7 +55,7 @@ export default function LoginPage() {
               <p className="text-sm text-white/70">PDF yükle, otomatik kırp ve skorla.</p>
             </div>
             <div className="flex-1 p-4 rounded-xl bg-white/10 border border-white/15">
-              <p className="font-semibold">MÜDEK Raporları</p>
+              <p className="font-semibold">MEDEK Raporları</p>
               <p className="text-sm text-white/70">ÖÇ ve PÇ başarılarını otomatik hesapla.</p>
             </div>
           </div>

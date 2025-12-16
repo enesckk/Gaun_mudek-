@@ -256,7 +256,7 @@ export function OutcomeEditor({
                         <div className="flex items-start gap-2 text-xs text-slate-600">
                           <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="font-medium mb-0.5">MÜDEK Mantığı:</p>
+                            <p className="font-medium mb-0.5">MEDEK Mantığı:</p>
                             <p>Her Öğrenme Çıktısı (ÖÇ), bir veya daha fazla Program Çıktısına (PÇ) katkıda bulunur. Sorular sadece ÖÇ'ye eşlenir, PÇ otomatik olarak ÖÇ'den türetilir.</p>
                           </div>
                         </div>

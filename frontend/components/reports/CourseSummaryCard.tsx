@@ -77,28 +77,28 @@ export function CourseSummaryCard({
 
   return (
     <Card className="border-2 border-[#0a294e]/20 dark:border-slate-700">
-      <CardHeader>
-        <CardTitle className="text-2xl text-[#0a294e] dark:text-foreground">Ders Genel Başarı Özeti</CardTitle>
-        <CardDescription className="text-base">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl md:text-2xl text-[#0a294e] dark:text-foreground">Ders Genel Başarı Özeti</CardTitle>
+        <CardDescription className="text-xs sm:text-sm md:text-base">
           Öğrenme Çıktıları ve Program Çıktıları için genel performans göstergeleri
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <CardContent className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* ÖÇ Özeti */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Öğrenme Çıktıları (ÖÇ)</h3>
-              <Badge variant="outline" className="text-sm">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base sm:text-lg font-semibold">Öğrenme Çıktıları (ÖÇ)</h3>
+              <Badge variant="outline" className="text-xs sm:text-sm">
                 {loAchievements.length} ÖÇ
               </Badge>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm font-medium">Ortalama Başarı</span>
-                <div className="flex items-center gap-2">
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-50 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium">Ortalama Başarı</span>
+                <div className="flex items-center gap-1 sm:gap-2">
                   {getTrendIcon(avgLO)}
-                  <span className="text-lg font-bold">{avgLO.toFixed(1)}%</span>
+                  <span className="text-base sm:text-lg font-bold">{avgLO.toFixed(1)}%</span>
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -133,19 +133,19 @@ export function CourseSummaryCard({
           </div>
 
           {/* PÇ Özeti */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Program Çıktıları (PÇ)</h3>
-              <Badge variant="outline" className="text-sm">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-base sm:text-lg font-semibold">Program Çıktıları (PÇ)</h3>
+              <Badge variant="outline" className="text-xs sm:text-sm">
                 {displayPCCount} PÇ
               </Badge>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-slate-800 rounded-lg">
-                <span className="text-sm font-medium text-foreground">Ortalama Başarı</span>
-                <div className="flex items-center gap-2">
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between p-2 sm:p-3 bg-purple-50 dark:bg-slate-800 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium text-foreground">Ortalama Başarı</span>
+                <div className="flex items-center gap-1 sm:gap-2">
                   {getTrendIcon(avgPO)}
-                  <span className="text-lg font-bold text-foreground">{avgPO.toFixed(1)}%</span>
+                  <span className="text-base sm:text-lg font-bold text-foreground">{avgPO.toFixed(1)}%</span>
                 </div>
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3">
@@ -154,22 +154,22 @@ export function CourseSummaryCard({
                   style={{ width: `${Math.min(avgPO, 100)}%` }}
                 />
               </div>
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="text-muted-foreground">Durum:</span>
                 <Badge
                   className={
                     avgPO >= 80
-                      ? "bg-green-500"
+                      ? "bg-green-500 text-xs sm:text-sm"
                       : avgPO >= 60
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
+                      ? "bg-yellow-500 text-xs sm:text-sm"
+                      : "bg-red-500 text-xs sm:text-sm"
                   }
                 >
                   {getStatusText(avgPO)}
                 </Badge>
               </div>
               <div className="pt-2 border-t">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground break-words">
                   <strong>{poAboveThreshold}</strong> / {displayPCCount} PÇ hedef eşiğini (≥60%) geçti
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">

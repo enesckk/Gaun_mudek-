@@ -1,4 +1,4 @@
-# MÜDEK Admin Dashboard - Frontend
+# MEDEK Admin Dashboard - Frontend
 
 Modern, professional admin dashboard built with Next.js 14, Tailwind CSS, and shadcn/ui.
 

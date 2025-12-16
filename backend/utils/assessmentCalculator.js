@@ -1,5 +1,5 @@
 /**
- * MÜDEK Hesaplama Yardımcıları
+ * MEDEK Hesaplama Yardımcıları
  * Girdi: StudentExamResult listesi, Exam, Course
  * Çıktı: Soru → ÖÇ → PÇ performansları ve rapor
  */

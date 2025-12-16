@@ -1,7 +1,7 @@
-# MÜDEK Uyumlu ÖÇ-PÇ Sistemi Planı
+# MEDEK Uyumlu ÖÇ-PÇ Sistemi Planı
 
 ## 🎯 Sistem Amacı
-MÜDEK (Mühendislik Eğitim Programları Değerlendirme ve Akreditasyon Derneği) uyumlu sınav yönetimi ve değerlendirme sistemi. Öğrenme Çıktıları (ÖÇ) ve Program Çıktıları (PÇ) bazlı değerlendirme yapılacak.
+MEDEK (Mühendislik Eğitim Programları Değerlendirme ve Akreditasyon Derneği) uyumlu sınav yönetimi ve değerlendirme sistemi. Öğrenme Çıktıları (ÖÇ) ve Program Çıktıları (PÇ) bazlı değerlendirme yapılacak.
 
 ## 📊 Sistem Mimarisi
 
@@ -86,7 +86,7 @@ Bölüm (Department)
    - ÖÇ başarı raporu (ders bazlı)
    - PÇ başarı raporu (ders bazlı)
    - Öğrenci bazlı ÖÇ/PÇ başarı analizi
-   - MÜDEK uyumlu rapor formatı
+   - MEDEK uyumlu rapor formatı
 
 ## 📋 Gerekli Özellikler
 
@@ -119,7 +119,7 @@ Bölüm (Department)
 - [x] ÖÇ başarı raporu
 - [x] PÇ başarı raporu
 - [x] Öğrenci bazlı analiz
-- [ ] MÜDEK standart rapor formatı (YENİ)
+- [ ] MEDEK standart rapor formatı (YENİ)
 - [ ] PDF export (YENİ)
 - [ ] Grafik ve görselleştirmeler (İYİLEŞTİRME)
 
@@ -130,7 +130,7 @@ Bölüm (Department)
 - **Dersler**: Ders listesi ve yönetimi
 - **Sınavlar**: Sınav listesi ve yönetimi
 - **Puanlar**: Puan girişi ve yönetimi
-- **Raporlar**: MÜDEK raporları
+- **Raporlar**: MEDEK raporları
 
 ### 2. ÖÇ-PÇ Görselleştirme
 - **Eşleme Matrisi**: ÖÇ × PÇ matris görünümü
@@ -174,7 +174,7 @@ Bölüm (Department)
 ### Faz 2: Gelişmiş Özellikler (Kısa Vadede)
 1. Ağırlıklı hesaplama sistemi
 2. Başarı eşikleri yönetimi
-3. MÜDEK standart rapor formatı
+3. MEDEK standart rapor formatı
 4. PDF export
 
 ### Faz 3: İleri Seviye (Orta Vadede)
@@ -196,7 +196,7 @@ Bölüm (Department)
 
 ## 📝 Notlar
 
-- MÜDEK standartlarına uygunluk kritik
+- MEDEK standartlarına uygunluk kritik
 - Veri tutarlılığı ve doğrulama önemli
 - Kullanıcı dostu arayüz öncelikli
 - Performans ve ölçeklenebilirlik dikkate alınmalı

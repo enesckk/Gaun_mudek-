@@ -439,7 +439,7 @@ export default function TestingPage() {
 
         <TestCard
           testName="Report Generation Check"
-          description="Verify MÜDEK report generation capabilities and data availability"
+          description="Verify MEDEK report generation capabilities and data availability"
           onRun={testReportGeneration}
         />
 

@@ -114,22 +114,22 @@ export function HeatmapChart({
           </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-center gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-500 rounded" />
-            <span className="text-foreground">0-40%</span>
+        <div className="mt-3 sm:mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[10px] sm:text-xs">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded flex-shrink-0" />
+            <span className="text-foreground whitespace-nowrap">0-40%</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-orange-500 rounded" />
-            <span className="text-foreground">40-60%</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded flex-shrink-0" />
+            <span className="text-foreground whitespace-nowrap">40-60%</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-500 rounded" />
-            <span className="text-foreground">60-80%</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-500 rounded flex-shrink-0" />
+            <span className="text-foreground whitespace-nowrap">60-80%</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 rounded" />
-            <span className="text-foreground">80-100%</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded flex-shrink-0" />
+            <span className="text-foreground whitespace-nowrap">80-100%</span>
           </div>
         </div>
       </CardContent>

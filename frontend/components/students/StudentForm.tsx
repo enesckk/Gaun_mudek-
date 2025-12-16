@@ -368,11 +368,11 @@ export function StudentForm({
       </div>
 
       {/* Butonlar */}
-      <div className="flex gap-4 pt-4 border-t border-slate-200">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-slate-200">
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          className="h-11 px-6 font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 text-white"
+          className="w-full sm:w-auto h-11 px-6 font-semibold bg-[#0a294e] hover:bg-[#0a294e]/90 text-white"
         >
           {isSubmitting ? (
             <>
@@ -390,7 +390,7 @@ export function StudentForm({
           variant="outline"
           onClick={() => router.back()}
           disabled={isSubmitting}
-          className="h-11 px-6"
+          className="w-full sm:w-auto h-11 px-6"
         >
           İptal
         </Button>

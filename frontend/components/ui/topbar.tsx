@@ -57,7 +57,7 @@ function getPageTitle(pathname: string): string {
     return "Ders Detayları";
   }
   if (pathname.startsWith("/reports/")) {
-    return "MÜDEK Raporu";
+    return "MEDEK Raporu";
   }
   if (pathname.startsWith("/dashboard/courses/") && !pathname.includes("/create")) {
     return "Ders Detayları";
@@ -113,9 +113,8 @@ export function Topbar({ title }: TopbarProps) {
           >
             <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 gap-2">
+          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
             <User className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
-            <span className="hidden md:inline text-sm">Yönetici</span>
           </Button>
         </div>
       </div>

@@ -251,7 +251,7 @@ const extractStudentNumberFromFile = async (fileName, pngBuffer) => {
 // Batch durum takibi - MongoDB'de saklanıyor (RAM'de değil)
 // Eski Map kodu kaldırıldı - artık MongoDB kullanıyoruz
 
-// Create a new Exam (MÜDEK uyumlu)
+// Create a new Exam (MEDEK uyumlu)
 const createExam = async (req, res) => {
   try {
     const {

@@ -362,7 +362,7 @@ export default function ProgramOutcomesPage() {
             <div className="flex items-start gap-2 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md">
               <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">MÜDEK Program Çıktıları</p>
+                <p className="font-medium mb-1">MEDEK Program Çıktıları</p>
                 <p>
                   Program çıktıları (PÇ), mezunların sahip olması gereken yetkinlikleri tanımlar. 
                   Her bölüm için PÇ'leri tanımlayıp, öğrenme çıktıları (ÖÇ) ile eşleştirebilirsiniz.

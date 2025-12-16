@@ -1,7 +1,7 @@
 {
   "name": "deneme-gemini-backend",
   "version": "1.0.0",
-  "description": "Backend API for MÜDEK exam automation system",
+  "description": "Backend API for MEDEK exam automation system",
   "type": "module",
   "main": "server.js",
   "scripts": {

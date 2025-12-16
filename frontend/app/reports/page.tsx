@@ -246,7 +246,7 @@ export default function ReportsPage() {
             <div className="p-2 bg-[#0a294e] rounded-lg">
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900">MÜDEK Raporları</h1>
+            <h1 className="text-3xl font-bold text-slate-900">MEDEK Raporları</h1>
           </div>
           <p className="text-muted-foreground text-base ml-14">
             Dersler için kapsamlı akreditasyon raporları oluşturun ve görüntüleyin

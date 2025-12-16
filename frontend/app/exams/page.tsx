@@ -256,19 +256,19 @@ export default function ExamsPage() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-    
-          <p className="text-muted-foreground text-base">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Sınavları ve sorularını yönetin, puanları görüntüleyin
           </p>
         </div>
         <Button 
           onClick={() => router.push("/exams/new")} 
-          className="h-12 px-6 bg-[#0a294e] hover:bg-[#0a294e]/90 text-white"
+          className="w-full sm:w-auto h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base bg-[#0a294e] hover:bg-[#0a294e]/90 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Sınav Oluştur
+          <span className="hidden sm:inline">Yeni Sınav Oluştur</span>
+          <span className="sm:hidden">Yeni Sınav</span>
         </Button>
       </div>
 
@@ -352,7 +352,7 @@ export default function ExamsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {/* Department Filter */}
             <div className="space-y-2">
               <Label htmlFor="department-filter" className="text-sm font-medium">

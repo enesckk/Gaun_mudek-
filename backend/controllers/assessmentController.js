@@ -6,7 +6,7 @@ import Student from "../models/Student.js";
 import StudentExamResult from "../models/StudentExamResult.js";
 
 /**
- * MÜDEK Assessment Logic
+ * MEDEK Assessment Logic
  * 
  * Question → ÖÇ → PÇ chain
  * 

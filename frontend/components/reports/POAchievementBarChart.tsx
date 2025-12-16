@@ -35,7 +35,7 @@ export function POAchievementBarChart({ achievements }: POAchievementBarChartPro
   const chartData = achievements.map((achievement) => ({
     code: achievement.code,
     başarı: Math.round(achievement.achievedPercentage * 100) / 100,
-    hedef: 60, // MÜDEK hedef eşiği
+    hedef: 60, // MEDEK hedef eşiği
   }));
 
   const getColor = (value: number) => {

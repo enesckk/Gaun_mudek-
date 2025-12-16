@@ -50,3 +50,5 @@ ProgramSchema.index({ department: 1, code: 1 }, { unique: true });
 
 export default mongoose.model("Program", ProgramSchema);
 
+
+

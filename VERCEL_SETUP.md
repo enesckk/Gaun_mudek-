@@ -59,3 +59,5 @@ Vercel Dashboard'da şu environment variables'ları ekleyin:
 
 
 
+
+

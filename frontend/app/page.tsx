@@ -88,7 +88,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">MÜDEK Yönetim Paneli</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">MEDEK Yönetim Paneli</h1>
           <p className="text-muted-foreground text-base">
             Sistem genelinde özet bilgiler ve hızlı erişim
           </p>

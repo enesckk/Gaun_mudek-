@@ -52,7 +52,7 @@ export function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Logo/Brand */}
           <div className="flex items-center h-14 lg:h-16 px-4 lg:px-6 border-b border-border flex-shrink-0">
-            <h1 className="text-lg lg:text-xl font-bold text-foreground truncate">MÜDEK Yönetici</h1>
+            <h1 className="text-lg lg:text-xl font-bold text-foreground truncate">MEDEK</h1>
           </div>
 
           {/* Navigation */}

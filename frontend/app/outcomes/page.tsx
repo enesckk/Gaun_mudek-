@@ -256,13 +256,17 @@ export default function OutcomesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Tüm derslerin öğrenme çıktılarını görüntüleyin, yönetin ve program çıktıları ile eşleştirin
         </p>
-        <Button onClick={() => router.push("/outcomes/new")}>
+        <Button 
+          onClick={() => router.push("/outcomes/new")}
+          className="w-full sm:w-auto h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base"
+        >
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Öğrenme Çıktısı
+          <span className="hidden sm:inline">Yeni Öğrenme Çıktısı</span>
+          <span className="sm:hidden">Yeni ÖÇ</span>
         </Button>
       </div>
 

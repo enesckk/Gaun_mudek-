@@ -41,11 +41,20 @@ export function StudentTable({ students, courses = [], onDelete }: StudentTableP
   // Get program name for a student from their courses
   const getStudentProgram = (student: Student): string | null => {
     if (!courses || courses.length === 0) return null;
+    if (!student?.studentNumber) return null;
+    
+    // Normalize student number for comparison (trim and case-insensitive)
+    const normalizedStudentNumber = String(student.studentNumber).trim().toUpperCase();
     
     // Find courses where this student is enrolled
     const studentCourses = courses.filter((course: any) => {
       const courseStudents = course.students || [];
-      return courseStudents.some((cs: any) => cs.studentNumber === student.studentNumber);
+      return courseStudents.some((cs: any) => {
+        if (!cs?.studentNumber) return false;
+        // Normalize course student number for comparison
+        const normalizedCourseStudentNumber = String(cs.studentNumber).trim().toUpperCase();
+        return normalizedCourseStudentNumber === normalizedStudentNumber;
+      });
     });
     
     if (studentCourses.length === 0) return null;

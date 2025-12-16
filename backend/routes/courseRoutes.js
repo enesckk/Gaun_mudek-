@@ -21,10 +21,10 @@ router.post("/seed", seedCourses);
 // GET ALL
 router.get("/", getCourses);
 
-// Course MÜDEK matrix - Spesifik route, :id'den önce
+// Course MEDEK matrix - Spesifik route, :id'den önce
 router.get("/:id/matrix", getCourseMatrix);
 
-// Course MÜDEK raporu - Spesifik route, :id'den önce
+// Course MEDEK raporu - Spesifik route, :id'den önce
 router.get("/:id/report", getCourseReport);
 
 // GET ONE - Genel route en sonda

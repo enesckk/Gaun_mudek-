@@ -11,7 +11,7 @@ const SettingsSchema = new mongoose.Schema(
     
     // General Settings
     general: {
-      appName: { type: String, default: "GAUN MÜDEK" },
+      appName: { type: String, default: "GAUN MEDEK" },
       language: { type: String, default: "tr" },
       timezone: { type: String, default: "Europe/Istanbul" },
       dateFormat: { type: String, default: "DD/MM/YYYY" },
@@ -74,4 +74,6 @@ SettingsSchema.statics.getSettings = async function () {
 };
 
 export default mongoose.model("Settings", SettingsSchema);
+
+
 

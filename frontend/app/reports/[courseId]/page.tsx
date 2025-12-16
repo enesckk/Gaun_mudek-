@@ -171,37 +171,39 @@ export default function CourseReportPage() {
     : course.department || "Bilinmiyor";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-3 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
+        <div className="mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push("/reports")}
-                className="px-2"
+                className="px-2 h-9 sm:h-10 flex-shrink-0"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                Geri
+                <span className="hidden sm:inline">Geri</span>
               </Button>
-              <div className="p-2 bg-[#0a294e] rounded-lg">
-                <BarChart3 className="h-6 w-6 text-white" />
+              <div className="p-2 bg-[#0a294e] rounded-lg flex-shrink-0">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">
-                  {course.code} - {course.name}
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-foreground truncate">
+                  <span className="whitespace-nowrap">{course.code}</span>
+                  <span className="hidden sm:inline"> - </span>
+                  <span className="block sm:inline break-words">{course.name}</span>
                 </h1>
-                <p className="text-muted-foreground text-base mt-1">
-                  MÜDEK Akreditasyon Raporu
+                <p className="text-muted-foreground text-xs sm:text-sm md:text-base mt-1">
+                  MEDEK Akreditasyon Raporu
                 </p>
               </div>
             </div>
             <Button
               variant="outline"
               onClick={() => router.push("/reports")}
-              className="h-11 px-6"
+              className="h-9 sm:h-11 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
             >
               Raporlara Dön
             </Button>
@@ -216,62 +218,62 @@ export default function CourseReportPage() {
       />
 
       {/* Course Info Header */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-2 border-slate-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Ders Kodu</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{course.code}</p>
-                <p className="text-sm text-muted-foreground mt-1">{course.name}</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Ders Kodu</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-foreground truncate">{course.code}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">{course.name}</p>
               </div>
-              <div className="p-3 bg-[#0a294e]/10 rounded-lg">
-                <BookOpen className="h-6 w-6 text-[#0a294e]" />
+              <div className="p-2 sm:p-3 bg-[#0a294e]/10 rounded-lg flex-shrink-0">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-[#0a294e]" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-2 border-slate-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Öğrenciler</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{students.length}</p>
-                <p className="text-sm text-muted-foreground mt-1">Kayıtlı öğrenciler</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Öğrenciler</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-foreground">{students.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">Kayıtlı öğrenciler</p>
               </div>
-              <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                <Users className="h-6 w-6 text-slate-700 dark:text-foreground" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-2 border-slate-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Sınavlar</p>
-                <p className="text-2xl font-bold text-slate-900">{exams.length}</p>
-                <p className="text-sm text-muted-foreground mt-1">Toplam sınav</p>
-              </div>
-              <div className="p-3 bg-slate-100 rounded-lg">
-                <FileText className="h-6 w-6 text-slate-700" />
+              <div className="p-2 sm:p-3 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-slate-700 dark:text-foreground" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-2 border-slate-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Öğrenme Çıktıları</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{course.learningOutcomes?.length || 0}</p>
-                <p className="text-sm text-muted-foreground mt-1">Toplam ÖÇ</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Sınavlar</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-foreground">{exams.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">Toplam sınav</p>
               </div>
-              <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                <Target className="h-6 w-6 text-slate-700 dark:text-foreground" />
+              <div className="p-2 sm:p-3 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0">
+                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-slate-700 dark:text-foreground" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-slate-200">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Öğrenme Çıktıları</p>
+                <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-foreground">{course.learningOutcomes?.length || 0}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">Toplam ÖÇ</p>
+              </div>
+              <div className="p-2 sm:p-3 bg-slate-100 dark:bg-slate-700 rounded-lg flex-shrink-0">
+                <Target className="h-5 w-5 sm:h-6 sm:w-6 text-slate-700 dark:text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -310,12 +312,12 @@ export default function CourseReportPage() {
       {/* LO Progress Cards */}
       {loAchievements.length > 0 && (
         <Card className="rounded-xl shadow-sm">
-          <CardHeader>
-            <CardTitle>ÖÇ Başarı Özeti</CardTitle>
-            <CardDescription>Öğrenme çıktıları başarılarının görsel gösterimi</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg md:text-xl">ÖÇ Başarı Özeti</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Öğrenme çıktıları başarılarının görsel gösterimi</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {loAchievements.map((achievement) => (
                 <LOProgressCard key={achievement.code} achievement={achievement} />
               ))}
@@ -356,12 +358,12 @@ export default function CourseReportPage() {
       {/* PO Progress Cards */}
       {poAchievements.length > 0 && (
         <Card className="rounded-xl shadow-sm">
-          <CardHeader>
-            <CardTitle>PÇ Başarı Özeti</CardTitle>
-            <CardDescription>Program çıktıları başarılarının görsel gösterimi</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg md:text-xl">PÇ Başarı Özeti</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Program çıktıları başarılarının görsel gösterimi</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {poAchievements.map((achievement) => (
                 <POProgressCard key={achievement.code} achievement={achievement} />
               ))}

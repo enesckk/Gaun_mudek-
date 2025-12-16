@@ -1,8 +1,8 @@
-# Backend Dokümantasyonu - MÜDEK Exam Automation System
+# Backend Dokümantasyonu - MEDEK Exam Automation System
 
 ## 📋 Genel Bakış
 
-Backend, MÜDEK uyumlu sınav otomasyon sistemi için RESTful API sağlar. Express.js, MongoDB (Mongoose) ve AI (Gemini Vision API) kullanır.
+Backend, MEDEK uyumlu sınav otomasyon sistemi için RESTful API sağlar. Express.js, MongoDB (Mongoose) ve AI (Gemini Vision API) kullanır.
 
 ---
 

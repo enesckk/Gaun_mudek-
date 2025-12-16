@@ -123,7 +123,7 @@ export function BackupTools() {
           >
             <div className="flex items-center gap-2 w-full">
               <FileText className="h-5 w-5" />
-              <span className="font-semibold">Export MÜDEK Report</span>
+              <span className="font-semibold">Export MEDEK Report</span>
             </div>
             <span className="text-xs text-muted-foreground text-left">
               Generate comprehensive accreditation report (PDF)

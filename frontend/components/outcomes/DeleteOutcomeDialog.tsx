@@ -61,7 +61,7 @@ export function DeleteOutcomeDialog({
             <strong>{outcomeCode}</strong> öğrenme çıktısını silmek istediğinizden emin misiniz?
             <br />
             <br />
-            Bu öğrenme çıktısını silmek MÜDEK eşleştirmelerini bozabilir. Bu işlem geri alınamaz.
+            Bu öğrenme çıktısını silmek MEDEK eşleştirmelerini bozabilir. Bu işlem geri alınamaz.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

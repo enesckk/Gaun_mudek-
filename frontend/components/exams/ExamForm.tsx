@@ -358,7 +358,7 @@ export function ExamForm({ mode, examId, initialData, onSuccess }: ExamFormProps
           )}
           {courseId && learningOutcomeOptions.length > 0 && (
             <p className="text-sm text-muted-foreground mt-2">
-              Her soruyu ilgili öğrenme çıktısına (ÖÇ) eşleyin. MÜDEK değerlendirmesi için zorunludur.
+              Her soruyu ilgili öğrenme çıktısına (ÖÇ) eşleyin. MEDEK değerlendirmesi için zorunludur.
             </p>
           )}
         </CardHeader>

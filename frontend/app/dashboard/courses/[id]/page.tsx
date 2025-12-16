@@ -82,9 +82,15 @@ export default function CourseDetailPage() {
   const departmentId = typeof department === "object" ? department?._id : null;
   const departmentName = typeof department === "object" ? department?.name : department || "Bilinmiyor";
   
-  // Get programId from course
+  // Get program info from course
   const program = (course as any).program;
   const programId = typeof program === "object" && program !== null ? program?._id : (typeof program === "string" ? program : null);
+  const programName = typeof program === "object" && program !== null 
+    ? (program?.name || program?.nameEn || null)
+    : null;
+  const programCode = typeof program === "object" && program !== null 
+    ? (program?.code || null)
+    : null;
 
   return (
     <div className="min-h-screen bg-background p-3 sm:p-6">
@@ -106,6 +112,14 @@ export default function CourseDetailPage() {
                 <span className="whitespace-nowrap">Kod: {course.code}</span>
                 <span className="hidden sm:inline"> | </span>
                 <span className="block sm:inline sm:ml-0">Bölüm: {departmentName}</span>
+                {programName && (
+                  <>
+                    <span className="hidden sm:inline"> | </span>
+                    <span className="block sm:inline sm:ml-0">
+                      Program: {programName}{programCode ? ` (${programCode})` : ""}
+                    </span>
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -158,6 +172,14 @@ export default function CourseDetailPage() {
                     <p className="text-sm text-muted-foreground">Bölüm</p>
                     <p className="text-lg font-semibold">{departmentName}</p>
                   </div>
+                  {programName && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Program</p>
+                      <p className="text-lg font-semibold">
+                        {programName}{programCode ? ` (${programCode})` : ""}
+                      </p>
+                    </div>
+                  )}
                   {(course as any).semester && (
                     <div>
                       <p className="text-sm text-muted-foreground">Dönem</p>

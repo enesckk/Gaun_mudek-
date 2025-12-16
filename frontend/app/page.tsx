@@ -40,33 +40,35 @@ export default function DashboardPage() {
         departmentApi.getAll().catch(() => []),
       ]);
 
-      // Calculate total learning outcomes from all courses
-      const totalLOs = courses.reduce((sum, course) => {
-        return sum + (course.learningOutcomes?.length || 0);
-      }, 0);
+      // Calculate total learning outcomes from LearningOutcome collection
+      // This is more accurate than counting embedded arrays in courses
+      const allLearningOutcomes = await learningOutcomeApi.getAll().catch(() => []);
+      const totalLOs = allLearningOutcomes.length;
+      
+      console.log("📊 Dashboard Stats - Total Courses:", courses.length);
+      console.log("📊 Dashboard Stats - Total ÖÇs:", totalLOs);
 
       // Calculate total program outcomes from all programs
-      // Get all programs and aggregate their program outcomes
+      // Get all programs (without department filter to get all)
       const { programApi } = await import("@/lib/api/programApi");
-      const allPrograms = await Promise.all(
-        departments.map(dept => 
-          programApi.getAll(dept._id).catch(() => [])
-        )
-      ).then(results => results.flat());
+      const allPrograms = await programApi.getAll().catch(() => []);
       
-      // Count unique program outcomes across all programs
-      const uniquePOCodes = new Set<string>();
+      // Count ALL program outcomes across all programs
+      // Each program can have its own set of PÇs, so we count all of them
+      let totalPOs = 0;
       allPrograms.forEach((program: any) => {
         if (program.programOutcomes && Array.isArray(program.programOutcomes)) {
-          program.programOutcomes.forEach((po: any) => {
-            if (po.code) {
-              uniquePOCodes.add(po.code);
-            }
-          });
+          totalPOs += program.programOutcomes.length;
         }
       });
       
-      const totalPOs = uniquePOCodes.size;
+      console.log("📊 Dashboard Stats - Total Programs:", allPrograms.length);
+      console.log("📊 Dashboard Stats - Total PÇs:", totalPOs);
+      allPrograms.forEach((program: any) => {
+        if (program.programOutcomes && Array.isArray(program.programOutcomes)) {
+          console.log(`  - Program ${program.name}: ${program.programOutcomes.length} PÇ`);
+        }
+      });
 
       setStats({
         totalCourses: courses.length,

@@ -24,6 +24,11 @@ export interface UpdateLearningOutcomeDto {
 }
 
 export const learningOutcomeApi = {
+  getAll: async (): Promise<LearningOutcome[]> => {
+    const response = await apiClient.get("/learning-outcomes/all");
+    return response.data.data || [];
+  },
+
   getByCourse: async (courseId: string): Promise<LearningOutcome[]> => {
     const response = await apiClient.get(
       `/learning-outcomes/course/${courseId}`

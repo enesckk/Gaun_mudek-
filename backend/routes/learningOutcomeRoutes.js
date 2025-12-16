@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createLearningOutcome,
+  getAllLearningOutcomes,
   getLearningOutcomesByCourse,
   getLearningOutcomeById,
   updateLearningOutcome,
@@ -12,7 +13,10 @@ const router = express.Router();
 // POST /api/learning-outcomes/
 router.post("/", createLearningOutcome);
 
-// GET /api/learning-outcomes/course/:courseId
+// GET /api/learning-outcomes/all (get all - for dashboard stats)
+router.get("/all", getAllLearningOutcomes);
+
+// GET /api/learning-outcomes/course/:courseId (must come before /:id)
 router.get("/course/:courseId", getLearningOutcomesByCourse);
 
 // GET /api/learning-outcomes/:id

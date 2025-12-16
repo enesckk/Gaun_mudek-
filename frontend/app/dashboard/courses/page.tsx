@@ -49,6 +49,10 @@ export default function DashboardCoursesPage() {
   useEffect(() => {
     if (selectedDepartmentId) {
       loadPrograms(selectedDepartmentId);
+      // Reset program selection when department changes
+      if (selectedProgramId) {
+        setSelectedProgramId("");
+      }
     } else {
       setPrograms([]);
       setSelectedProgramId("");
@@ -118,7 +122,7 @@ export default function DashboardCoursesPage() {
 
   useEffect(() => {
     applyFilters();
-  }, [searchQuery, selectedDepartmentId, courses]);
+  }, [searchQuery, selectedDepartmentId, selectedProgramId, courses]);
 
   const fetchCourses = async () => {
     try {

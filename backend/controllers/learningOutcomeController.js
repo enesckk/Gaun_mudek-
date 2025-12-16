@@ -115,6 +115,36 @@ const createLearningOutcome = async (req, res) => {
   }
 };
 
+// Get all Learning Outcomes (for dashboard stats)
+const getAllLearningOutcomes = async (req, res) => {
+  try {
+    const learningOutcomes = await LearningOutcome.find()
+      .populate("mappedProgramOutcomes", "code")
+      .sort({ code: 1 });
+
+    // Transform mappedProgramOutcomes from populated objects to code strings
+    const transformedOutcomes = learningOutcomes.map(lo => {
+      const loObj = lo.toObject();
+      if (loObj.mappedProgramOutcomes && Array.isArray(loObj.mappedProgramOutcomes)) {
+        loObj.mappedProgramOutcomes = loObj.mappedProgramOutcomes.map(po => 
+          typeof po === 'object' && po !== null ? po.code : po
+        ).filter(Boolean);
+      }
+      return loObj;
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: transformedOutcomes,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // Get all Learning Outcomes for a specific course
 const getLearningOutcomesByCourse = async (req, res) => {
   try {
@@ -349,6 +379,7 @@ const deleteLearningOutcome = async (req, res) => {
 
 export {
   createLearningOutcome,
+  getAllLearningOutcomes,
   getLearningOutcomesByCourse,
   getLearningOutcomeById,
   updateLearningOutcome,

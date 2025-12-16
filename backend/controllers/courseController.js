@@ -321,6 +321,7 @@ const getCourseById = async (req, res) => {
 
     const course = await Course.findById(id)
       .populate("department", "name code")
+      .populate("program", "code name nameEn")
       .exec();
 
     if (!course) {
